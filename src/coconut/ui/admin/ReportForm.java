@@ -28,18 +28,53 @@ public class ReportForm extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        jPanel1 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        cmbSeason = new javax.swing.JComboBox<>();
+        btnGenerate = new javax.swing.JButton();
+        btnExport = new javax.swing.JButton();
+        reportPanel = new javax.swing.JPanel();
+        btnBack = new javax.swing.JButton();
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel1.setText("Reports");
+        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 20, -1, -1));
+
+        jLabel2.setText("Select Season");
+        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 90, -1, -1));
+
+        jPanel1.add(cmbSeason, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 130, -1, -1));
+
+        btnGenerate.setText("Generate Report");
+        jPanel1.add(btnGenerate, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 190, -1, -1));
+
+        btnExport.setText("Export to PDF");
+        jPanel1.add(btnExport, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 220, -1, -1));
+
+        reportPanel.setBackground(new java.awt.Color(102, 255, 204));
+
+        javax.swing.GroupLayout reportPanelLayout = new javax.swing.GroupLayout(reportPanel);
+        reportPanel.setLayout(reportPanelLayout);
+        reportPanelLayout.setHorizontalGroup(
+            reportPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 550, Short.MAX_VALUE)
         );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+        reportPanelLayout.setVerticalGroup(
+            reportPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 480, Short.MAX_VALUE)
         );
+
+        jPanel1.add(reportPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 50, 550, 480));
+
+        btnBack.setText("Back");
+        jPanel1.add(btnBack, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 540, -1, -1));
+
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 860, 590));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -70,5 +105,13 @@ public class ReportForm extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnBack;
+    private javax.swing.JButton btnExport;
+    private javax.swing.JButton btnGenerate;
+    private javax.swing.JComboBox<String> cmbSeason;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel reportPanel;
     // End of variables declaration//GEN-END:variables
 }

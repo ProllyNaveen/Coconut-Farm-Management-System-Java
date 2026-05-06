@@ -56,7 +56,9 @@ public class LoginForm extends javax.swing.JFrame {
         jPanel1.add(txtUsername, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 150, 150, 30));
         jPanel1.add(txtPassword, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 210, 150, 30));
 
+        btnLogin.setBackground(new java.awt.Color(0, 204, 102));
         btnLogin.setFont(new java.awt.Font("Microsoft New Tai Lue", 0, 18)); // NOI18N
+        btnLogin.setForeground(new java.awt.Color(255, 255, 255));
         btnLogin.setText("Login");
         jPanel1.add(btnLogin, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 370, 120, 50));
 
@@ -65,7 +67,7 @@ public class LoginForm extends javax.swing.JFrame {
         lblError.setText("Error");
         jPanel1.add(lblError, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 310, -1, -1));
 
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 800, 600));
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 770, 540));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents

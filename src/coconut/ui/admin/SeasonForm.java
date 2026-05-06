@@ -28,18 +28,81 @@ public class SeasonForm extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        jPanel1 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tblSeasons = new javax.swing.JTable();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        txtSeasonName = new javax.swing.JTextField();
+        dateStart = new com.toedter.calendar.JDateChooser();
+        dateEnd = new com.toedter.calendar.JDateChooser();
+        cmbStatus = new javax.swing.JComboBox<>();
+        btnAdd = new javax.swing.JButton();
+        btnUpdate = new javax.swing.JButton();
+        btnDelete = new javax.swing.JButton();
+        btnClear = new javax.swing.JButton();
+        btnBack = new javax.swing.JButton();
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
-        );
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel1.setText("Season Management");
+        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 30, -1, -1));
+
+        tblSeasons.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane1.setViewportView(tblSeasons);
+
+        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 70, -1, -1));
+
+        jLabel2.setText("Season Name");
+        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 110, 80, -1));
+
+        jLabel3.setText("Start Date");
+        jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 160, -1, -1));
+
+        jLabel4.setText("End Date");
+        jPanel1.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 210, -1, -1));
+
+        jLabel5.setText("Status");
+        jPanel1.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 250, -1, -1));
+        jPanel1.add(txtSeasonName, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 110, 90, -1));
+        jPanel1.add(dateStart, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 160, -1, -1));
+        jPanel1.add(dateEnd, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 200, -1, -1));
+
+        cmbStatus.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Upcoming", "Active", "Completed" }));
+        jPanel1.add(cmbStatus, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 250, -1, -1));
+
+        btnAdd.setText("Add");
+        jPanel1.add(btnAdd, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 340, -1, -1));
+
+        btnUpdate.setText("Update");
+        jPanel1.add(btnUpdate, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 340, -1, -1));
+
+        btnDelete.setText("Delete");
+        jPanel1.add(btnDelete, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 340, -1, -1));
+
+        btnClear.setText("Clear");
+        jPanel1.add(btnClear, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 380, -1, -1));
+
+        btnBack.setText("Back");
+        jPanel1.add(btnBack, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 510, -1, -1));
+
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 870, 560));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -70,5 +133,22 @@ public class SeasonForm extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnAdd;
+    private javax.swing.JButton btnBack;
+    private javax.swing.JButton btnClear;
+    private javax.swing.JButton btnDelete;
+    private javax.swing.JButton btnUpdate;
+    private javax.swing.JComboBox<String> cmbStatus;
+    private com.toedter.calendar.JDateChooser dateEnd;
+    private com.toedter.calendar.JDateChooser dateStart;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTable tblSeasons;
+    private javax.swing.JTextField txtSeasonName;
     // End of variables declaration//GEN-END:variables
 }

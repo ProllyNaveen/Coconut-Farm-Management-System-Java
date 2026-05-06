@@ -28,18 +28,111 @@ public class AdminDashboard extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        jPanel1 = new javax.swing.JPanel();
+        lblWelcomeAdmin = new javax.swing.JLabel();
+        btnLogout = new javax.swing.JButton();
+        jPanel2 = new javax.swing.JPanel();
+        lblTotalPlots = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
+        jPanel3 = new javax.swing.JPanel();
+        lblActiveSeason = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+        jPanel4 = new javax.swing.JPanel();
+        lblTotalFarmers = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        jPanel5 = new javax.swing.JPanel();
+        lblTotalHarvest = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        tblInspections = new javax.swing.JTable();
+        btnSeasons = new javax.swing.JButton();
+        btnUsers = new javax.swing.JButton();
+        btnReports = new javax.swing.JButton();
+        jLabel2 = new javax.swing.JLabel();
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
-        );
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        lblWelcomeAdmin.setText("Welcome Admin");
+        jPanel1.add(lblWelcomeAdmin, new org.netbeans.lib.awtextra.AbsoluteConstraints(680, 10, -1, -1));
+
+        btnLogout.setText("Logout");
+        jPanel1.add(btnLogout, new org.netbeans.lib.awtextra.AbsoluteConstraints(660, 40, -1, -1));
+
+        jPanel2.setBackground(new java.awt.Color(153, 255, 204));
+        jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        lblTotalPlots.setText("0");
+        jPanel2.add(lblTotalPlots, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 30, -1, -1));
+
+        jLabel6.setText("Total Plots");
+        jPanel2.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(52, 48, -1, -1));
+
+        jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 140, 170, 70));
+
+        jPanel3.setBackground(new java.awt.Color(153, 255, 204));
+        jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        lblActiveSeason.setText("-");
+        jPanel3.add(lblActiveSeason, new org.netbeans.lib.awtextra.AbsoluteConstraints(67, 26, -1, -1));
+
+        jLabel7.setText("Active Season");
+        jPanel3.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 40, -1, -1));
+
+        jPanel1.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 220, 170, 70));
+
+        jPanel4.setBackground(new java.awt.Color(153, 255, 204));
+        jPanel4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        lblTotalFarmers.setText("0");
+        jPanel4.add(lblTotalFarmers, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 10, -1, -1));
+
+        jLabel5.setText("Total Farmers");
+        jPanel4.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(63, 46, -1, -1));
+
+        jPanel1.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 40, 170, 70));
+
+        jPanel5.setBackground(new java.awt.Color(153, 255, 204));
+        jPanel5.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        lblTotalHarvest.setText("0");
+        jPanel5.add(lblTotalHarvest, new org.netbeans.lib.awtextra.AbsoluteConstraints(68, 26, -1, -1));
+
+        jLabel1.setText("Total Harvest");
+        jPanel5.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 60, -1, -1));
+
+        jPanel1.add(jPanel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 310, 170, 90));
+
+        tblInspections.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane2.setViewportView(tblInspections);
+
+        jPanel1.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 70, -1, -1));
+
+        btnSeasons.setText("Manage Seasons");
+        jPanel1.add(btnSeasons, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 500, -1, -1));
+
+        btnUsers.setText("Manage Users");
+        jPanel1.add(btnUsers, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 500, -1, -1));
+
+        btnReports.setText("Reports");
+        jPanel1.add(btnReports, new org.netbeans.lib.awtextra.AbsoluteConstraints(710, 500, -1, -1));
+
+        jLabel2.setText("Recent Inspections");
+        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 50, -1, -1));
+
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(-10, 0, 870, 540));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -70,5 +163,26 @@ public class AdminDashboard extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnLogout;
+    private javax.swing.JButton btnReports;
+    private javax.swing.JButton btnSeasons;
+    private javax.swing.JButton btnUsers;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel jPanel5;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JLabel lblActiveSeason;
+    private javax.swing.JLabel lblTotalFarmers;
+    private javax.swing.JLabel lblTotalHarvest;
+    private javax.swing.JLabel lblTotalPlots;
+    private javax.swing.JLabel lblWelcomeAdmin;
+    private javax.swing.JTable tblInspections;
     // End of variables declaration//GEN-END:variables
 }
