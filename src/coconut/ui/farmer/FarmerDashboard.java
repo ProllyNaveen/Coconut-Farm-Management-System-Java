@@ -28,18 +28,93 @@ public class FarmerDashboard extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        jPanel1 = new javax.swing.JPanel();
+        lblWelcome = new javax.swing.JLabel();
+        btnLogout = new javax.swing.JButton();
+        jPanel2 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        lblPlotName = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        lblLocation = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
+        lblTreeCount = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tblActivities = new javax.swing.JTable();
+        btnPlot = new javax.swing.JButton();
+        btnActivity = new javax.swing.JButton();
+        btnInspections = new javax.swing.JButton();
+        btnHarvest = new javax.swing.JButton();
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
-        );
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        lblWelcome.setText("Welcome,Farmer");
+        jPanel1.add(lblWelcome, new org.netbeans.lib.awtextra.AbsoluteConstraints(700, 20, -1, -1));
+
+        btnLogout.setText("Logout");
+        jPanel1.add(btnLogout, new org.netbeans.lib.awtextra.AbsoluteConstraints(690, 50, -1, -1));
+
+        jPanel2.setBackground(new java.awt.Color(102, 255, 153));
+        jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel1.setText("My Plot");
+        jPanel2.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 10, -1, -1));
+
+        jLabel2.setText("Plot Name:");
+        jPanel2.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 50, -1, -1));
+
+        lblPlotName.setText("jLabel3");
+        jPanel2.add(lblPlotName, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 50, -1, -1));
+
+        jLabel4.setText("Location:");
+        jPanel2.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 80, -1, -1));
+
+        lblLocation.setText("jLabel5");
+        jPanel2.add(lblLocation, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 80, -1, -1));
+
+        jLabel6.setText("Tree Count:");
+        jPanel2.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 120, -1, -1));
+
+        lblTreeCount.setText("jLabel7");
+        jPanel2.add(lblTreeCount, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 120, -1, -1));
+
+        jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 70, 190, 190));
+
+        jLabel3.setText("Recent Activities");
+        jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 70, -1, -1));
+
+        tblActivities.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane1.setViewportView(tblActivities);
+
+        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 100, -1, -1));
+
+        btnPlot.setText("My Plot");
+        jPanel1.add(btnPlot, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 420, -1, -1));
+
+        btnActivity.setText("Log Activity");
+        jPanel1.add(btnActivity, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 410, -1, -1));
+
+        btnInspections.setText("View Inspections");
+        jPanel1.add(btnInspections, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 460, -1, -1));
+
+        btnHarvest.setText("Record Harvest");
+        jPanel1.add(btnHarvest, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 410, -1, -1));
+
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 870, 590));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -70,5 +145,23 @@ public class FarmerDashboard extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnActivity;
+    private javax.swing.JButton btnHarvest;
+    private javax.swing.JButton btnInspections;
+    private javax.swing.JButton btnLogout;
+    private javax.swing.JButton btnPlot;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel lblLocation;
+    private javax.swing.JLabel lblPlotName;
+    private javax.swing.JLabel lblTreeCount;
+    private javax.swing.JLabel lblWelcome;
+    private javax.swing.JTable tblActivities;
     // End of variables declaration//GEN-END:variables
 }
