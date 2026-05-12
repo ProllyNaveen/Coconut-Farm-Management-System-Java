@@ -15,9 +15,15 @@ public class ReportForm extends javax.swing.JFrame {
     /**
      * Creates new form ReportForm
      */
-    public ReportForm() {
-        initComponents();
-    }
+private String currentUsername;
+private int currentUserId;
+
+public ReportForm(String username, int userId) {
+    initComponents();
+    setLocationRelativeTo(null);
+    this.currentUsername = username;
+    this.currentUserId = userId;
+}
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -101,7 +107,7 @@ public class ReportForm extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new ReportForm().setVisible(true));
+        java.awt.EventQueue.invokeLater(() -> new ReportForm("admin", 1).setVisible(true));
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

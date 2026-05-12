@@ -3,7 +3,9 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package coconut.ui.farmer;
-
+import coconut.db.DBConnection;
+import java.sql.*;
+import javax.swing.JOptionPane;
 /**
  *
  * @author navee
@@ -15,9 +17,15 @@ public class ViewInspections extends javax.swing.JFrame {
     /**
      * Creates new form ViewInspections
      */
-    public ViewInspections() {
-        initComponents();
-    }
+    private String currentUsername;
+private int currentUserId;
+
+public ViewInspections(String username, int userId) {
+    initComponents();
+    setLocationRelativeTo(null);
+    this.currentUsername = username;
+    this.currentUserId = userId;
+}
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -95,7 +103,7 @@ public class ViewInspections extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new ViewInspections().setVisible(true));
+        java.awt.EventQueue.invokeLater(() -> new ViewInspections("farmer", 2).setVisible(true));
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

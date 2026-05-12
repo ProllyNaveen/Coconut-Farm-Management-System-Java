@@ -15,9 +15,15 @@ public class InspectionForm extends javax.swing.JFrame {
     /**
      * Creates new form InspectionForm
      */
-    public InspectionForm() {
-        initComponents();
-    }
+   private String currentUsername;
+private int currentUserId;
+
+public InspectionForm(String username, int userId) {
+    initComponents();
+    setLocationRelativeTo(null);
+    this.currentUsername = username;
+    this.currentUserId = userId;
+}
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -28,18 +34,95 @@ public class InspectionForm extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        jPanel1 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        btnBack = new javax.swing.JButton();
+        cmbPlot = new javax.swing.JComboBox<>();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        dateInspection = new com.toedter.calendar.JDateChooser();
+        jLabel4 = new javax.swing.JLabel();
+        cmbHealthStatus = new javax.swing.JComboBox<>();
+        jLabel5 = new javax.swing.JLabel();
+        txtPestIssues = new javax.swing.JTextField();
+        jLabel6 = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTextArea1 = new javax.swing.JTextArea();
+        btnAdd = new javax.swing.JButton();
+        btnUpdate = new javax.swing.JButton();
+        btnClear = new javax.swing.JButton();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        tblInspections = new javax.swing.JTable();
+        jLabel7 = new javax.swing.JLabel();
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
-        );
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel1.setText("Inspection Form");
+        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 20, -1, -1));
+
+        btnBack.setText("Back");
+        jPanel1.add(btnBack, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 540, -1, -1));
+
+        cmbPlot.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jPanel1.add(cmbPlot, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 120, -1, -1));
+
+        jLabel2.setText("Select Plot");
+        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 120, -1, -1));
+
+        jLabel3.setText("Inspection Date");
+        jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 170, -1, -1));
+        jPanel1.add(dateInspection, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 170, -1, -1));
+
+        jLabel4.setText("Health Status");
+        jPanel1.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 220, -1, -1));
+
+        cmbHealthStatus.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Good", "At Risk", "Critical" }));
+        jPanel1.add(cmbHealthStatus, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 220, -1, -1));
+
+        jLabel5.setText("Pest Issues");
+        jPanel1.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 280, -1, -1));
+        jPanel1.add(txtPestIssues, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 280, 70, -1));
+
+        jLabel6.setText("Recommendation");
+        jPanel1.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 320, -1, -1));
+
+        jTextArea1.setColumns(20);
+        jTextArea1.setRows(5);
+        jScrollPane1.setViewportView(jTextArea1);
+
+        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 340, -1, -1));
+
+        btnAdd.setText("Add");
+        jPanel1.add(btnAdd, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 450, -1, -1));
+
+        btnUpdate.setText("Update");
+        jPanel1.add(btnUpdate, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 450, -1, -1));
+
+        btnClear.setText("Clear");
+        jPanel1.add(btnClear, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 510, -1, -1));
+
+        tblInspections.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane2.setViewportView(tblInspections);
+
+        jPanel1.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 40, -1, -1));
+
+        jLabel7.setText("Past Insepections");
+        jPanel1.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(660, 20, -1, -1));
+
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 850, 610));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -66,9 +149,29 @@ public class InspectionForm extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new InspectionForm().setVisible(true));
+        java.awt.EventQueue.invokeLater(() -> new InspectionForm("officer", 3).setVisible(true));
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnAdd;
+    private javax.swing.JButton btnBack;
+    private javax.swing.JButton btnClear;
+    private javax.swing.JButton btnUpdate;
+    private javax.swing.JComboBox<String> cmbHealthStatus;
+    private javax.swing.JComboBox<String> cmbPlot;
+    private com.toedter.calendar.JDateChooser dateInspection;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JTextArea jTextArea1;
+    private javax.swing.JTable tblInspections;
+    private javax.swing.JTextField txtPestIssues;
     // End of variables declaration//GEN-END:variables
 }

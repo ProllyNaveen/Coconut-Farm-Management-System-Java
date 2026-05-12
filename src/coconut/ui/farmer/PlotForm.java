@@ -3,7 +3,9 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package coconut.ui.farmer;
-
+import java.sql.*;
+import javax.swing.JOptionPane;
+import coconut.db.DBConnection;
 /**
  *
  * @author navee
@@ -15,9 +17,46 @@ public class PlotForm extends javax.swing.JFrame {
     /**
      * Creates new form PlotForm
      */
-    public PlotForm() {
+    private String currentUsername;
+    private int currentUserId;
+    private int currentPlotId = -1;
+
+    public PlotForm(String username, int userId) {
         initComponents();
+        setLocationRelativeTo(null);
+        this.currentUsername = username;
+        this.currentUserId = userId;
+        loadPlot();
     }
+
+    private void loadPlot() {
+        try {
+            Connection conn = DBConnection.getConnection();
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM plot WHERE farmer_id = ?");
+            ps.setInt(1, currentUserId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                currentPlotId = rs.getInt("plot_id");
+                txtPlotName.setText(rs.getString("plot_name"));
+                txtLocation.setText(rs.getString("location"));
+                txtTreeCount.setText(String.valueOf(rs.getInt("tree_count")));
+                txtLandSize.setText(String.valueOf(rs.getDouble("land_size_acres")));
+                btnSave.setText("Update");
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error loading plot: " + e.getMessage());
+        }
+    }
+
+    private void clearForm() {
+        txtPlotName.setText("");
+        txtLocation.setText("");
+        txtTreeCount.setText("");
+        txtLandSize.setText("");
+        currentPlotId = -1;
+        btnSave.setText("Save");
+    }
+
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -72,12 +111,15 @@ public class PlotForm extends javax.swing.JFrame {
         jPanel1.add(txtLandSize, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 230, 100, -1));
 
         btnSave.setText("Save");
+        btnSave.addActionListener(this::btnSaveActionPerformed);
         jPanel1.add(btnSave, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 340, -1, -1));
 
         btnEdit.setText("Edit");
+        btnEdit.addActionListener(this::btnEditActionPerformed);
         jPanel1.add(btnEdit, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 330, -1, -1));
 
         btnClear.setText("Clear");
+        btnClear.addActionListener(this::btnClearActionPerformed);
         jPanel1.add(btnClear, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 340, -1, -1));
 
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 850, 560));
@@ -86,8 +128,64 @@ public class PlotForm extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
-        // TODO add your handling code here:
+        new coconut.ui.farmer.FarmerDashboard(currentUsername, currentUserId).setVisible(true);
+        this.dispose();
     }//GEN-LAST:event_btnBackActionPerformed
+
+    private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
+        if (txtPlotName.getText().isEmpty() || txtLocation.getText().isEmpty()
+                || txtTreeCount.getText().isEmpty() || txtLandSize.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please fill in all fields!");
+            return;
+        }
+        try {
+            int treeCount = Integer.parseInt(txtTreeCount.getText());
+            double landSize = Double.parseDouble(txtLandSize.getText());
+
+            Connection conn = DBConnection.getConnection();
+
+            if (currentPlotId == -1) {
+                // Insert new plot
+                String sql = "INSERT INTO plot (farmer_id, plot_name, location, tree_count, land_size_acres) VALUES (?, ?, ?, ?, ?)";
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ps.setInt(1, currentUserId);
+                ps.setString(2, txtPlotName.getText());
+                ps.setString(3, txtLocation.getText());
+                ps.setInt(4, treeCount);
+                ps.setDouble(5, landSize);
+                ps.executeUpdate();
+                JOptionPane.showMessageDialog(this, "Plot registered successfully!");
+            } else {
+                // Update existing plot
+                String sql = "UPDATE plot SET plot_name=?, location=?, tree_count=?, land_size_acres=? WHERE plot_id=?";
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ps.setString(1, txtPlotName.getText());
+                ps.setString(2, txtLocation.getText());
+                ps.setInt(3, treeCount);
+                ps.setDouble(4, landSize);
+                ps.setInt(5, currentPlotId);
+                ps.executeUpdate();
+                JOptionPane.showMessageDialog(this, "Plot updated successfully!");
+            }
+            loadPlot();
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Tree count and land size must be numbers!");
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error saving plot: " + e.getMessage());
+        }
+    }//GEN-LAST:event_btnSaveActionPerformed
+
+    private void btnEditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditActionPerformed
+        txtPlotName.setEditable(true);
+        txtLocation.setEditable(true);
+        txtTreeCount.setEditable(true);
+        txtLandSize.setEditable(true);
+        btnSave.setEnabled(true);
+    }//GEN-LAST:event_btnEditActionPerformed
+
+    private void btnClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClearActionPerformed
+        clearForm();
+    }//GEN-LAST:event_btnClearActionPerformed
 
     /**
      * @param args the command line arguments
@@ -111,7 +209,7 @@ public class PlotForm extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new PlotForm().setVisible(true));
+       java.awt.EventQueue.invokeLater(() -> new PlotForm("farmer", 2).setVisible(true));
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

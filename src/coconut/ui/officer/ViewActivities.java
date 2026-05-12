@@ -15,9 +15,15 @@ public class ViewActivities extends javax.swing.JFrame {
     /**
      * Creates new form ViewActivities
      */
-    public ViewActivities() {
-        initComponents();
-    }
+    private String currentUsername;
+private int currentUserId;
+
+public ViewActivities(String username, int userId) {
+    initComponents();
+    setLocationRelativeTo(null);
+    this.currentUsername = username;
+    this.currentUserId = userId;
+}
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -28,18 +34,47 @@ public class ViewActivities extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        jPanel1 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        btnBack = new javax.swing.JButton();
+        jLabel2 = new javax.swing.JLabel();
+        cmbPlot = new javax.swing.JComboBox<>();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tblActivities = new javax.swing.JTable();
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
-        );
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel1.setText("Farm Activities");
+        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 30, -1, -1));
+
+        btnBack.setText("Back");
+        jPanel1.add(btnBack, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 560, -1, -1));
+
+        jLabel2.setText("Select Plot");
+        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 140, -1, -1));
+
+        cmbPlot.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jPanel1.add(cmbPlot, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 180, -1, -1));
+
+        tblActivities.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane1.setViewportView(tblActivities);
+
+        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 90, -1, -1));
+
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 940, 620));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -66,9 +101,16 @@ public class ViewActivities extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new ViewActivities().setVisible(true));
+        java.awt.EventQueue.invokeLater(() -> new ViewActivities("officer", 3).setVisible(true));
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnBack;
+    private javax.swing.JComboBox<String> cmbPlot;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTable tblActivities;
     // End of variables declaration//GEN-END:variables
 }

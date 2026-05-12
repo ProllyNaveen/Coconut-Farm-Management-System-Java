@@ -3,7 +3,10 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package coconut.ui.farmer;
-
+import coconut.db.DBConnection;
+import java.sql.*;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.JOptionPane;
 /**
  *
  * @author navee
@@ -15,10 +18,62 @@ public class FarmerDashboard extends javax.swing.JFrame {
     /**
      * Creates new form FarmerDashboard
      */
-    public FarmerDashboard() {
+   private String currentUsername;
+    private int currentUserId;
+    private int currentPlotId = -1;
+
+    public FarmerDashboard(String username, int userId) {
         initComponents();
+        setLocationRelativeTo(null);
+        this.currentUsername = username;
+        this.currentUserId = userId;
+        loadDashboard();
     }
 
+    private void loadDashboard() {
+        lblWelcome.setText("Welcome, " + currentUsername);
+        try {
+            Connection conn = DBConnection.getConnection();
+
+            // Load plot summary
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM plot WHERE farmer_id = ?");
+            ps.setInt(1, currentUserId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                currentPlotId = rs.getInt("plot_id");
+                lblPlotName.setText(rs.getString("plot_name"));
+                lblLocation.setText(rs.getString("location"));
+                lblTreeCount.setText(String.valueOf(rs.getInt("tree_count")));
+            } else {
+                lblPlotName.setText("Not registered");
+                lblLocation.setText("-");
+                lblTreeCount.setText("-");
+            }
+
+            // Load recent activities
+            if (currentPlotId != -1) {
+                PreparedStatement ps2 = conn.prepareStatement(
+                    "SELECT activity_type, activity_date, notes FROM activity WHERE plot_id = ? ORDER BY activity_date DESC LIMIT 5"
+                );
+                ps2.setInt(1, currentPlotId);
+                ResultSet rs2 = ps2.executeQuery();
+                DefaultTableModel model = new DefaultTableModel(
+                    new String[]{"Activity Type", "Date", "Notes"}, 0
+                );
+                while (rs2.next()) {
+                    model.addRow(new Object[]{
+                        rs2.getString("activity_type"),
+                        rs2.getDate("activity_date"),
+                        rs2.getString("notes")
+                    });
+                }
+                tblActivities.setModel(model);
+            }
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error loading dashboard: " + e.getMessage());
+        }
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -56,6 +111,7 @@ public class FarmerDashboard extends javax.swing.JFrame {
         jPanel1.add(lblWelcome, new org.netbeans.lib.awtextra.AbsoluteConstraints(700, 20, -1, -1));
 
         btnLogout.setText("Logout");
+        btnLogout.addActionListener(this::btnLogoutActionPerformed);
         jPanel1.add(btnLogout, new org.netbeans.lib.awtextra.AbsoluteConstraints(690, 50, -1, -1));
 
         jPanel2.setBackground(new java.awt.Color(102, 255, 153));
@@ -103,21 +159,50 @@ public class FarmerDashboard extends javax.swing.JFrame {
         jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 100, -1, -1));
 
         btnPlot.setText("My Plot");
+        btnPlot.addActionListener(this::btnPlotActionPerformed);
         jPanel1.add(btnPlot, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 420, -1, -1));
 
         btnActivity.setText("Log Activity");
-        jPanel1.add(btnActivity, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 410, -1, -1));
+        btnActivity.addActionListener(this::btnActivityActionPerformed);
+        jPanel1.add(btnActivity, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 410, 100, -1));
 
         btnInspections.setText("View Inspections");
+        btnInspections.addActionListener(this::btnInspectionsActionPerformed);
         jPanel1.add(btnInspections, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 460, -1, -1));
 
         btnHarvest.setText("Record Harvest");
+        btnHarvest.addActionListener(this::btnHarvestActionPerformed);
         jPanel1.add(btnHarvest, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 410, -1, -1));
 
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 870, 590));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btnLogoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLogoutActionPerformed
+        new coconut.ui.LoginForm().setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btnLogoutActionPerformed
+
+    private void btnPlotActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPlotActionPerformed
+       new coconut.ui.farmer.PlotForm(currentUsername, currentUserId).setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btnPlotActionPerformed
+
+    private void btnActivityActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnActivityActionPerformed
+        new coconut.ui.farmer.ActivityForm(currentUsername, currentUserId).setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btnActivityActionPerformed
+
+    private void btnHarvestActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHarvestActionPerformed
+      new coconut.ui.farmer.HarvestForm(currentUsername, currentUserId).setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btnHarvestActionPerformed
+
+    private void btnInspectionsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnInspectionsActionPerformed
+       new coconut.ui.farmer.ViewInspections(currentUsername, currentUserId).setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btnInspectionsActionPerformed
 
     /**
      * @param args the command line arguments
@@ -141,7 +226,7 @@ public class FarmerDashboard extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new FarmerDashboard().setVisible(true));
+        java.awt.EventQueue.invokeLater(() -> new FarmerDashboard("farmer", 2).setVisible(true));
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

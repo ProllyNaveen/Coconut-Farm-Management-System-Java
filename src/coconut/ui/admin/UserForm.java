@@ -4,6 +4,10 @@
  */
 package coconut.ui.admin;
 
+import coconut.db.DBConnection;
+import java.sql.*;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.JOptionPane;
 /**
  *
  * @author navee
@@ -15,10 +19,52 @@ public class UserForm extends javax.swing.JFrame {
     /**
      * Creates new form UserForm
      */
-    public UserForm() {
+   private String currentUsername;
+    private int currentUserId;
+    private int selectedUserId = -1;
+
+    public UserForm(String username, int userId) {
         initComponents();
+        setLocationRelativeTo(null);
+        this.currentUsername = username;
+        this.currentUserId = userId;
+        loadUsers();
+    }
+    
+    private void loadUsers() {
+        try {
+            Connection conn = DBConnection.getConnection();
+            String sql = "SELECT * FROM user";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            DefaultTableModel model = new DefaultTableModel(
+                new String[]{"ID", "Full Name", "Username", "Email", "Phone", "Role"}, 0
+            );
+            while (rs.next()) {
+                model.addRow(new Object[]{
+                    rs.getInt("user_id"),
+                    rs.getString("full_name"),
+                    rs.getString("username"),
+                    rs.getString("email"),
+                    rs.getString("phone"),
+                    rs.getString("role")
+                });
+            }
+            tblUsers.setModel(model);
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error loading users: " + e.getMessage());
+        }
     }
 
+    private void clearForm() {
+        txtFullName.setText("");
+        txtUsername.setText("");
+        txtPassword.setText("");
+        txtEmail.setText("");
+        txtPhone.setText("");
+        cmbRole.setSelectedIndex(0);
+        selectedUserId = -1;
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -69,6 +115,11 @@ public class UserForm extends javax.swing.JFrame {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
+        tblUsers.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblUsersMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(tblUsers);
 
         jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 60, 400, 390));
@@ -100,24 +151,120 @@ public class UserForm extends javax.swing.JFrame {
         jPanel1.add(cmbRole, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 280, -1, -1));
 
         btnBack.setText("Back");
+        btnBack.addActionListener(this::btnBackActionPerformed);
         jPanel1.add(btnBack, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 490, -1, -1));
 
         btnAdd.setText("Add");
+        btnAdd.addActionListener(this::btnAddActionPerformed);
         jPanel1.add(btnAdd, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 360, -1, -1));
 
         btnUpdate.setText("Update");
+        btnUpdate.addActionListener(this::btnUpdateActionPerformed);
         jPanel1.add(btnUpdate, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 360, -1, -1));
 
         btnDelete.setText("Delete");
+        btnDelete.addActionListener(this::btnDeleteActionPerformed);
         jPanel1.add(btnDelete, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 360, -1, -1));
 
         btnClear.setText("Clear");
+        btnClear.addActionListener(this::btnClearActionPerformed);
         jPanel1.add(btnClear, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 420, -1, -1));
 
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 810, 550));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void tblUsersMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblUsersMouseClicked
+       int row = tblUsers.getSelectedRow();
+        if (row != -1) {
+            selectedUserId = (int) tblUsers.getValueAt(row, 0);
+            txtFullName.setText(tblUsers.getValueAt(row, 1).toString());
+            txtUsername.setText(tblUsers.getValueAt(row, 2).toString());
+            txtEmail.setText(tblUsers.getValueAt(row, 3).toString());
+            txtPhone.setText(tblUsers.getValueAt(row, 4).toString());
+            cmbRole.setSelectedItem(tblUsers.getValueAt(row, 5).toString());
+        }   
+    }//GEN-LAST:event_tblUsersMouseClicked
+
+    private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
+       if (txtFullName.getText().isEmpty() || txtUsername.getText().isEmpty() || txtPassword.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please fill in all required fields!");
+            return;
+        }
+        try {
+            Connection conn = DBConnection.getConnection();
+            String sql = "INSERT INTO user (full_name, username, password_hash, email, phone, role) VALUES (?, ?, ?, ?, ?, ?)";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, txtFullName.getText());
+            ps.setString(2, txtUsername.getText());
+            ps.setString(3, txtPassword.getText());
+            ps.setString(4, txtEmail.getText());
+            ps.setString(5, txtPhone.getText());
+            ps.setString(6, cmbRole.getSelectedItem().toString().toLowerCase());
+            ps.executeUpdate();
+            JOptionPane.showMessageDialog(this, "User added successfully!");
+            loadUsers();
+            clearForm();
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error adding user: " + e.getMessage());
+        }
+    }//GEN-LAST:event_btnAddActionPerformed
+
+    private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
+        if (selectedUserId == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a user to update!");
+            return;
+        }
+        try {
+            Connection conn = DBConnection.getConnection();
+            String sql = "UPDATE user SET full_name=?, username=?, email=?, phone=?, role=? WHERE user_id=?";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, txtFullName.getText());
+            ps.setString(2, txtUsername.getText());
+            ps.setString(3, txtEmail.getText());
+            ps.setString(4, txtPhone.getText());
+            ps.setString(5, cmbRole.getSelectedItem().toString().toLowerCase());
+            ps.setInt(6, selectedUserId);
+            ps.executeUpdate();
+            JOptionPane.showMessageDialog(this, "User updated successfully!");
+            loadUsers();
+            clearForm();
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error updating user: " + e.getMessage());
+        }
+    }//GEN-LAST:event_btnUpdateActionPerformed
+
+    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
+        if (selectedUserId == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a user to delete!");
+            return;
+        }
+        int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this user?");
+        if (confirm == JOptionPane.YES_OPTION) {
+            try {
+                Connection conn = DBConnection.getConnection();
+                String sql = "DELETE FROM user WHERE user_id = ?";
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ps.setInt(1, selectedUserId);
+                ps.executeUpdate();
+                JOptionPane.showMessageDialog(this, "User deleted successfully!");
+                loadUsers();
+                clearForm();
+            } catch (SQLException e) {
+                JOptionPane.showMessageDialog(this, "Error deleting user: " + e.getMessage());
+            }
+        }
+    }//GEN-LAST:event_btnDeleteActionPerformed
+
+    private void btnClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClearActionPerformed
+      clearForm();
+    }//GEN-LAST:event_btnClearActionPerformed
+
+    private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
+        new coconut.ui.admin.AdminDashboard(currentUsername, currentUserId).setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btnBackActionPerformed
 
     /**
      * @param args the command line arguments
@@ -141,7 +288,7 @@ public class UserForm extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new UserForm().setVisible(true));
+        java.awt.EventQueue.invokeLater(() -> new UserForm("admin", 1).setVisible(true));
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

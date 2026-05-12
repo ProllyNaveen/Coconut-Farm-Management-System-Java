@@ -3,7 +3,10 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package coconut.ui.farmer;
-
+import coconut.db.DBConnection;
+import java.sql.*;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 /**
  *
  * @author navee
@@ -15,8 +18,100 @@ public class HarvestForm extends javax.swing.JFrame {
     /**
      * Creates new form HarvestForm
      */
-    public HarvestForm() {
+    private String currentUsername;
+    private int currentUserId;
+    private int currentPlotId = -1;
+    private int currentSeasonId = -1;
+    private int selectedHarvestId = -1;
+
+    public HarvestForm(String username, int userId) {
         initComponents();
+        setLocationRelativeTo(null);
+        this.currentUsername = username;
+        this.currentUserId = userId;
+        loadPlotAndSeason();
+        loadHarvests();
+    }
+
+    private void loadPlotAndSeason() {
+        try {
+            Connection conn = DBConnection.getConnection();
+
+            // Get farmer's plot
+            PreparedStatement ps = conn.prepareStatement("SELECT plot_id FROM plot WHERE farmer_id = ?");
+            ps.setInt(1, currentUserId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                currentPlotId = rs.getInt("plot_id");
+            } else {
+                JOptionPane.showMessageDialog(this, "You have not registered a plot yet!");
+            }
+
+            // Get active season
+            PreparedStatement ps2 = conn.prepareStatement("SELECT season_id FROM season WHERE status = 'Active' LIMIT 1");
+            ResultSet rs2 = ps2.executeQuery();
+            if (rs2.next()) {
+                currentSeasonId = rs2.getInt("season_id");
+            } else {
+                JOptionPane.showMessageDialog(this, "No active season found!");
+            }
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error loading data: " + e.getMessage());
+        }
+    }
+
+    private void loadHarvests() {
+        if (currentPlotId == -1) return;
+        try {
+            Connection conn = DBConnection.getConnection();
+            PreparedStatement ps = conn.prepareStatement(
+                "SELECT * FROM harvest WHERE plot_id = ? ORDER BY harvest_date DESC"
+            );
+            ps.setInt(1, currentPlotId);
+            ResultSet rs = ps.executeQuery();
+            DefaultTableModel model = new DefaultTableModel(
+                new String[]{"ID", "Date", "Nut Count", "Price Per Nut", "Quality", "Total Value", "Notes"}, 0
+            );
+            while (rs.next()) {
+                int nutCount = rs.getInt("nut_count");
+                double price = rs.getDouble("price_per_nut");
+                double total = nutCount * price;
+                model.addRow(new Object[]{
+                    rs.getInt("harvest_id"),
+                    rs.getDate("harvest_date"),
+                    nutCount,
+                    price,
+                    rs.getString("quality_grade"),
+                    String.format("%.2f", total),
+                    rs.getString("notes")
+                });
+            }
+            tblHarvest.setModel(model);
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error loading harvests: " + e.getMessage());
+        }
+    }
+
+    private void clearForm() {
+        dateHarvest.setDate(null);
+        txtNutCount.setText("");
+        txtPrice.setText("");
+        cmbQuality.setSelectedIndex(0);
+        txtNotes.setText("");
+        lblTotalValue.setText("0.00");
+        selectedHarvestId = -1;
+    }
+
+    private void calculateTotal() {
+        try {
+            int nutCount = Integer.parseInt(txtNutCount.getText());
+            double price = Double.parseDouble(txtPrice.getText());
+            double total = nutCount * price;
+            lblTotalValue.setText(String.format("%.2f", total));
+        } catch (NumberFormatException e) {
+            lblTotalValue.setText("0.00");
+        }
     }
 
     /**
@@ -60,6 +155,7 @@ public class HarvestForm extends javax.swing.JFrame {
         jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 20, -1, -1));
 
         btnBack.setText("Back");
+        btnBack.addActionListener(this::btnBackActionPerformed);
         jPanel1.add(btnBack, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 510, -1, -1));
 
         tblHarvest.setModel(new javax.swing.table.DefaultTableModel(
@@ -73,6 +169,11 @@ public class HarvestForm extends javax.swing.JFrame {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
+        tblHarvest.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblHarvestMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(tblHarvest);
 
         jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 80, -1, -1));
@@ -91,7 +192,19 @@ public class HarvestForm extends javax.swing.JFrame {
 
         jLabel6.setText("Notes");
         jPanel1.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 290, -1, -1));
+
+        txtNutCount.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                txtNutCountKeyReleased(evt);
+            }
+        });
         jPanel1.add(txtNutCount, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 150, 80, -1));
+
+        txtPrice.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                txtPriceKeyReleased(evt);
+            }
+        });
         jPanel1.add(txtPrice, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 200, 90, -1));
         jPanel1.add(dateHarvest, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 100, -1, -1));
 
@@ -111,21 +224,144 @@ public class HarvestForm extends javax.swing.JFrame {
         jPanel1.add(lblTotalValue, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 400, -1, -1));
 
         btnAdd.setText("Add");
+        btnAdd.addActionListener(this::btnAddActionPerformed);
         jPanel1.add(btnAdd, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 430, -1, -1));
 
         btnUpdate.setText("Update");
+        btnUpdate.addActionListener(this::btnUpdateActionPerformed);
         jPanel1.add(btnUpdate, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 430, -1, -1));
 
         btnDelete.setText("Delete");
+        btnDelete.addActionListener(this::btnDeleteActionPerformed);
         jPanel1.add(btnDelete, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 430, -1, -1));
 
         btnClear.setText("Clear");
+        btnClear.addActionListener(this::btnClearActionPerformed);
         jPanel1.add(btnClear, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 470, -1, -1));
 
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 790, 550));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void tblHarvestMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblHarvestMouseClicked
+        int row = tblHarvest.getSelectedRow();
+        if (row != -1) {
+            selectedHarvestId = (int) tblHarvest.getValueAt(row, 0);
+            dateHarvest.setDate((java.util.Date) tblHarvest.getValueAt(row, 1));
+            txtNutCount.setText(tblHarvest.getValueAt(row, 2).toString());
+            txtPrice.setText(tblHarvest.getValueAt(row, 3).toString());
+            cmbQuality.setSelectedItem(tblHarvest.getValueAt(row, 4).toString());
+            lblTotalValue.setText(tblHarvest.getValueAt(row, 5).toString());
+            txtNotes.setText(tblHarvest.getValueAt(row, 6).toString());
+        }
+    }//GEN-LAST:event_tblHarvestMouseClicked
+
+    private void txtNutCountKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtNutCountKeyReleased
+        calculateTotal();
+    }//GEN-LAST:event_txtNutCountKeyReleased
+
+    private void txtPriceKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtPriceKeyReleased
+        calculateTotal();
+    }//GEN-LAST:event_txtPriceKeyReleased
+
+    private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
+       if (currentPlotId == -1 || currentSeasonId == -1) {
+            JOptionPane.showMessageDialog(this, "Plot or active season not found!");
+            return;
+        }
+        if (dateHarvest.getDate() == null) {
+            JOptionPane.showMessageDialog(this, "Please select a harvest date!");
+            return;
+        }
+        if (txtNutCount.getText().isEmpty() || txtPrice.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter nut count and price!");
+            return;
+        }
+        try {
+            int nutCount = Integer.parseInt(txtNutCount.getText());
+            double price = Double.parseDouble(txtPrice.getText());
+
+            Connection conn = DBConnection.getConnection();
+            String sql = "INSERT INTO harvest (plot_id, season_id, harvest_date, nut_count, price_per_nut, quality_grade, notes) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, currentPlotId);
+            ps.setInt(2, currentSeasonId);
+            ps.setDate(3, new java.sql.Date(dateHarvest.getDate().getTime()));
+            ps.setInt(4, nutCount);
+            ps.setDouble(5, price);
+            ps.setString(6, cmbQuality.getSelectedItem().toString());
+            ps.setString(7, txtNotes.getText());
+            ps.executeUpdate();
+            JOptionPane.showMessageDialog(this, "Harvest recorded successfully!");
+            loadHarvests();
+            clearForm();
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Nut count and price must be numbers!");
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error recording harvest: " + e.getMessage());
+        }
+    }//GEN-LAST:event_btnAddActionPerformed
+
+    private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
+        if (selectedHarvestId == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a harvest to update!");
+            return;
+        }
+        try {
+            int nutCount = Integer.parseInt(txtNutCount.getText());
+            double price = Double.parseDouble(txtPrice.getText());
+
+            Connection conn = DBConnection.getConnection();
+            String sql = "UPDATE harvest SET harvest_date=?, nut_count=?, price_per_nut=?, quality_grade=?, notes=? WHERE harvest_id=?";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setDate(1, new java.sql.Date(dateHarvest.getDate().getTime()));
+            ps.setInt(2, nutCount);
+            ps.setDouble(3, price);
+            ps.setString(4, cmbQuality.getSelectedItem().toString());
+            ps.setString(5, txtNotes.getText());
+            ps.setInt(6, selectedHarvestId);
+            ps.executeUpdate();
+            JOptionPane.showMessageDialog(this, "Harvest updated successfully!");
+            loadHarvests();
+            clearForm();
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Nut count and price must be numbers!");
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error updating harvest: " + e.getMessage());
+        }
+    }//GEN-LAST:event_btnUpdateActionPerformed
+
+    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
+        if (selectedHarvestId == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a harvest to delete!");
+            return;
+        }
+        int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this harvest?");
+        if (confirm == JOptionPane.YES_OPTION) {
+            try {
+                Connection conn = DBConnection.getConnection();
+                String sql = "DELETE FROM harvest WHERE harvest_id = ?";
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ps.setInt(1, selectedHarvestId);
+                ps.executeUpdate();
+                JOptionPane.showMessageDialog(this, "Harvest deleted successfully!");
+                loadHarvests();
+                clearForm();
+            } catch (SQLException e) {
+                JOptionPane.showMessageDialog(this, "Error deleting harvest: " + e.getMessage());
+            }
+        }
+    }//GEN-LAST:event_btnDeleteActionPerformed
+
+    private void btnClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClearActionPerformed
+        clearForm();
+    }//GEN-LAST:event_btnClearActionPerformed
+
+    private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
+        new coconut.ui.farmer.FarmerDashboard(currentUsername, currentUserId).setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btnBackActionPerformed
 
     /**
      * @param args the command line arguments
@@ -149,7 +385,7 @@ public class HarvestForm extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new HarvestForm().setVisible(true));
+        java.awt.EventQueue.invokeLater(() -> new HarvestForm("farmer", 2).setVisible(true));
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

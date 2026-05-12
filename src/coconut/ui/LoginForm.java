@@ -4,19 +4,20 @@
  */
 package coconut.ui;
 
+import java.sql.*;
 /**
  *
  * @author navee
  */
 public class LoginForm extends javax.swing.JFrame {
     
-    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(LoginForm.class.getName());
+   
 
-    /**
-     * Creates new form LoginForm
-     */
     public LoginForm() {
         initComponents();
+        setLocationRelativeTo(null);
+        setTitle("Coconut Farm Management System");
+        lblError.setText("");
     }
 
     /**
@@ -60,6 +61,7 @@ public class LoginForm extends javax.swing.JFrame {
         btnLogin.setFont(new java.awt.Font("Microsoft New Tai Lue", 0, 18)); // NOI18N
         btnLogin.setForeground(new java.awt.Color(255, 255, 255));
         btnLogin.setText("Login");
+        btnLogin.addActionListener(this::btnLoginActionPerformed);
         jPanel1.add(btnLogin, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 370, 120, 50));
 
         lblError.setFont(new java.awt.Font("Microsoft New Tai Lue", 0, 18)); // NOI18N
@@ -72,30 +74,49 @@ public class LoginForm extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginActionPerformed
+     String username = txtUsername.getText().trim();
+        String password = new String(txtPassword.getPassword()).trim();
+
+        if (username.isEmpty() || password.isEmpty()) {
+            lblError.setText("Please enter username and password!");
+            return;
+        }
+
+        try {
+            Connection conn = coconut.db.DBConnection.getConnection();
+            String sql = "SELECT * FROM user WHERE username = ? AND password_hash = ?";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, username);
+            ps.setString(2, password);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                int userId = rs.getInt("user_id");
+                String role = rs.getString("role");
+
+                if (role.equals("admin")) {
+                    new coconut.ui.admin.AdminDashboard(username, userId).setVisible(true);
+                } else if (role.equals("farmer")) {
+                    new coconut.ui.farmer.FarmerDashboard(username, userId).setVisible(true);
+                } else if (role.equals("field_officer")) {
+                    new coconut.ui.officer.OfficerDashboard(username, userId).setVisible(true);
+                }
+                this.dispose();
+            } else {
+                lblError.setText("Invalid username or password!");
+            }
+        } catch (Exception e) {
+            lblError.setText("Error: " + e.getMessage());
+        }
+    }//GEN-LAST:event_btnLoginActionPerformed
+
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException ex) {
-            logger.log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new LoginForm().setVisible(true));
-    }
+  public static void main(String args[]) {
+    java.awt.EventQueue.invokeLater(() -> new LoginForm().setVisible(true));
+}
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnLogin;

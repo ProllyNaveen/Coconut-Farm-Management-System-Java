@@ -4,6 +4,7 @@
  */
 package coconut.ui.officer;
 
+
 /**
  *
  * @author navee
@@ -15,9 +16,15 @@ public class OfficerDashboard extends javax.swing.JFrame {
     /**
      * Creates new form OfficerDashboard
      */
-    public OfficerDashboard() {
-        initComponents();
-    }
+private String currentUsername;
+private int currentUserId;
+
+public OfficerDashboard(String username, int userId) {
+    initComponents();
+    setLocationRelativeTo(null);
+    this.currentUsername = username;
+    this.currentUserId = userId;
+}
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -28,18 +35,51 @@ public class OfficerDashboard extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        jPanel1 = new javax.swing.JPanel();
+        lblWelcome = new javax.swing.JLabel();
+        btnLogout = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tblInspections = new javax.swing.JTable();
+        btnInspection = new javax.swing.JButton();
+        btnActivities = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
-        );
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        lblWelcome.setText("welcome");
+        jPanel1.add(lblWelcome, new org.netbeans.lib.awtextra.AbsoluteConstraints(660, 30, -1, -1));
+
+        btnLogout.setText("Logout");
+        jPanel1.add(btnLogout, new org.netbeans.lib.awtextra.AbsoluteConstraints(770, 30, -1, -1));
+
+        tblInspections.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane1.setViewportView(tblInspections);
+
+        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 130, -1, -1));
+
+        btnInspection.setText("Add Inspection");
+        jPanel1.add(btnInspection, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 220, -1, -1));
+
+        btnActivities.setText("View Activities");
+        jPanel1.add(btnActivities, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 310, -1, -1));
+
+        jLabel1.setText("Recent Inspections");
+        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(580, 110, -1, -1));
+
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 920, 630));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -66,9 +106,17 @@ public class OfficerDashboard extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new OfficerDashboard().setVisible(true));
+        java.awt.EventQueue.invokeLater(() -> new OfficerDashboard("officer", 3).setVisible(true));
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnActivities;
+    private javax.swing.JButton btnInspection;
+    private javax.swing.JButton btnLogout;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel lblWelcome;
+    private javax.swing.JTable tblInspections;
     // End of variables declaration//GEN-END:variables
 }

@@ -3,6 +3,10 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package coconut.ui.admin;
+import coconut.db.DBConnection;
+import java.sql.*;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -15,8 +19,72 @@ public class AdminDashboard extends javax.swing.JFrame {
     /**
      * Creates new form AdminDashboard
      */
-    public AdminDashboard() {
+private String currentUsername;
+    private int currentUserId;
+
+    public AdminDashboard(String username, int userId) {
         initComponents();
+        setLocationRelativeTo(null);
+        this.currentUsername = username;
+        this.currentUserId = userId;
+        loadDashboard();
+    }
+
+private void loadDashboard() {
+        try {
+            Connection conn = DBConnection.getConnection();
+
+            // Total farmers
+            PreparedStatement ps1 = conn.prepareStatement("SELECT COUNT(*) FROM user WHERE role = 'farmer'");
+            ResultSet rs1 = ps1.executeQuery();
+            if (rs1.next()) lblTotalFarmers.setText(String.valueOf(rs1.getInt(1)));
+
+            // Total plots
+            PreparedStatement ps2 = conn.prepareStatement("SELECT COUNT(*) FROM plot");
+            ResultSet rs2 = ps2.executeQuery();
+            if (rs2.next()) lblTotalPlots.setText(String.valueOf(rs2.getInt(1)));
+
+            // Active season
+            PreparedStatement ps3 = conn.prepareStatement("SELECT * FROM season WHERE status = 'active' LIMIT 1");
+            ResultSet rs3 = ps3.executeQuery();
+            if (rs3.next()) {
+                lblActiveSeason.setText(rs3.getString("season_name"));
+
+                // Total harvest for active season
+                PreparedStatement ps4 = conn.prepareStatement("SELECT SUM(nut_count) FROM harvest WHERE season_id = ?");
+                ps4.setInt(1, rs3.getInt("season_id"));
+                ResultSet rs4 = ps4.executeQuery();
+                if (rs4.next()) lblTotalHarvest.setText(String.valueOf(rs4.getInt(1)));
+            } else {
+                lblActiveSeason.setText("None");
+                lblTotalHarvest.setText("0");
+            }
+
+            // Recent inspections table
+            PreparedStatement ps5 = conn.prepareStatement(
+                "SELECT i.inspection_date, p.plot_name, u.full_name, i.health_status " +
+                "FROM inspection i " +
+                "JOIN plot p ON i.plot_id = p.plot_id " +
+                "JOIN user u ON i.officer_id = u.user_id " +
+                "ORDER BY i.inspection_date DESC LIMIT 10"
+            );
+            ResultSet rs5 = ps5.executeQuery();
+            DefaultTableModel model = new DefaultTableModel(
+                new String[]{"Date", "Plot", "Officer", "Health Status"}, 0
+            );
+            while (rs5.next()) {
+                model.addRow(new Object[]{
+                    rs5.getDate("inspection_date"),
+                    rs5.getString("plot_name"),
+                    rs5.getString("full_name"),
+                    rs5.getString("health_status")
+                });
+            }
+            tblInspections.setModel(model);
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error loading dashboard: " + e.getMessage());
+        }
     }
 
     /**
@@ -59,6 +127,7 @@ public class AdminDashboard extends javax.swing.JFrame {
         jPanel1.add(lblWelcomeAdmin, new org.netbeans.lib.awtextra.AbsoluteConstraints(680, 10, -1, -1));
 
         btnLogout.setText("Logout");
+        btnLogout.addActionListener(this::btnLogoutActionPerformed);
         jPanel1.add(btnLogout, new org.netbeans.lib.awtextra.AbsoluteConstraints(660, 40, -1, -1));
 
         jPanel2.setBackground(new java.awt.Color(153, 255, 204));
@@ -121,12 +190,15 @@ public class AdminDashboard extends javax.swing.JFrame {
         jPanel1.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 70, -1, -1));
 
         btnSeasons.setText("Manage Seasons");
+        btnSeasons.addActionListener(this::btnSeasonsActionPerformed);
         jPanel1.add(btnSeasons, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 500, -1, -1));
 
         btnUsers.setText("Manage Users");
+        btnUsers.addActionListener(this::btnUsersActionPerformed);
         jPanel1.add(btnUsers, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 500, -1, -1));
 
         btnReports.setText("Reports");
+        btnReports.addActionListener(this::btnReportsActionPerformed);
         jPanel1.add(btnReports, new org.netbeans.lib.awtextra.AbsoluteConstraints(710, 500, -1, -1));
 
         jLabel2.setText("Recent Inspections");
@@ -136,6 +208,22 @@ public class AdminDashboard extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btnLogoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLogoutActionPerformed
+              // TODO add your handling code here:
+    }//GEN-LAST:event_btnLogoutActionPerformed
+
+    private void btnSeasonsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSeasonsActionPerformed
+               // TODO add your handling code here:
+    }//GEN-LAST:event_btnSeasonsActionPerformed
+
+    private void btnUsersActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUsersActionPerformed
+               // TODO add your handling code here:
+    }//GEN-LAST:event_btnUsersActionPerformed
+
+    private void btnReportsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReportsActionPerformed
+                // TODO add your handling code here:
+    }//GEN-LAST:event_btnReportsActionPerformed
 
     /**
      * @param args the command line arguments
@@ -159,7 +247,7 @@ public class AdminDashboard extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new AdminDashboard().setVisible(true));
+        java.awt.EventQueue.invokeLater(() -> new AdminDashboard("admin", 1).setVisible(true));
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

@@ -3,7 +3,10 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package coconut.ui.farmer;
-
+import coconut.db.DBConnection;
+import java.sql.*;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 /**
  *
  * @author navee
@@ -15,8 +18,80 @@ public class ActivityForm extends javax.swing.JFrame {
     /**
      * Creates new form ActivityForm
      */
-    public ActivityForm() {
+    private String currentUsername;
+    private int currentUserId;
+    private int currentPlotId = -1;
+    private int currentSeasonId = -1;
+    private int selectedActivityId = -1;
+
+    public ActivityForm(String username, int userId) {
         initComponents();
+        setLocationRelativeTo(null);
+        this.currentUsername = username;
+        this.currentUserId = userId;
+        loadPlotAndSeason();
+        loadActivities();
+    }
+
+    private void loadPlotAndSeason() {
+        try {
+            Connection conn = DBConnection.getConnection();
+
+            // Get farmer's plot
+            PreparedStatement ps = conn.prepareStatement("SELECT plot_id FROM plot WHERE farmer_id = ?");
+            ps.setInt(1, currentUserId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                currentPlotId = rs.getInt("plot_id");
+            } else {
+                JOptionPane.showMessageDialog(this, "You have not registered a plot yet!");
+            }
+
+            // Get active season
+            PreparedStatement ps2 = conn.prepareStatement("SELECT season_id FROM season WHERE status = 'Active' LIMIT 1");
+            ResultSet rs2 = ps2.executeQuery();
+            if (rs2.next()) {
+                currentSeasonId = rs2.getInt("season_id");
+            } else {
+                JOptionPane.showMessageDialog(this, "No active season found!");
+            }
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error loading data: " + e.getMessage());
+        }
+    }
+
+    private void loadActivities() {
+        if (currentPlotId == -1) return;
+        try {
+            Connection conn = DBConnection.getConnection();
+            PreparedStatement ps = conn.prepareStatement(
+                "SELECT * FROM activity WHERE plot_id = ? ORDER BY activity_date DESC"
+            );
+            ps.setInt(1, currentPlotId);
+            ResultSet rs = ps.executeQuery();
+            DefaultTableModel model = new DefaultTableModel(
+                new String[]{"ID", "Activity Type", "Date", "Notes"}, 0
+            );
+            while (rs.next()) {
+                model.addRow(new Object[]{
+                    rs.getInt("activity_id"),
+                    rs.getString("activity_type"),
+                    rs.getDate("activity_date"),
+                    rs.getString("notes")
+                });
+            }
+            tblActivities.setModel(model);
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error loading activities: " + e.getMessage());
+        }
+    }
+
+    private void clearForm() {
+        cmbActivityType.setSelectedIndex(0);
+        dateActivity.setDate(null);
+        txtNotes.setText("");
+        selectedActivityId = -1;
     }
 
     /**
@@ -53,6 +128,7 @@ public class ActivityForm extends javax.swing.JFrame {
         jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 30, -1, -1));
 
         btnBack.setText("Back");
+        btnBack.addActionListener(this::btnBackActionPerformed);
         jPanel1.add(btnBack, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 510, -1, -1));
 
         tblActivities.setModel(new javax.swing.table.DefaultTableModel(
@@ -66,6 +142,11 @@ public class ActivityForm extends javax.swing.JFrame {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
+        tblActivities.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblActivitiesMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(tblActivities);
 
         jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 80, -1, -1));
@@ -90,18 +171,90 @@ public class ActivityForm extends javax.swing.JFrame {
         jPanel1.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 240, -1, -1));
 
         btnAdd.setText("Add");
+        btnAdd.addActionListener(this::btnAddActionPerformed);
         jPanel1.add(btnAdd, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 370, -1, -1));
 
         btnDelete.setText("Delete");
+        btnDelete.addActionListener(this::btnDeleteActionPerformed);
         jPanel1.add(btnDelete, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 370, -1, -1));
 
         btnClear.setText("Clear");
+        btnClear.addActionListener(this::btnClearActionPerformed);
         jPanel1.add(btnClear, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 370, -1, -1));
 
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 840, 560));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void tblActivitiesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblActivitiesMouseClicked
+        int row = tblActivities.getSelectedRow();
+        if (row != -1) {
+            selectedActivityId = (int) tblActivities.getValueAt(row, 0);
+            cmbActivityType.setSelectedItem(tblActivities.getValueAt(row, 1).toString());
+            dateActivity.setDate((java.util.Date) tblActivities.getValueAt(row, 2));
+            txtNotes.setText(tblActivities.getValueAt(row, 3).toString());
+        }
+    }//GEN-LAST:event_tblActivitiesMouseClicked
+
+    private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
+        if (currentPlotId == -1 || currentSeasonId == -1) {
+            JOptionPane.showMessageDialog(this, "Plot or active season not found!");
+            return;
+        }
+        if (dateActivity.getDate() == null) {
+            JOptionPane.showMessageDialog(this, "Please select a date!");
+            return;
+        }
+        try {
+            Connection conn = DBConnection.getConnection();
+            String sql = "INSERT INTO activity (plot_id, season_id, recorded_by, activity_type, activity_date, notes) VALUES (?, ?, ?, ?, ?, ?)";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, currentPlotId);
+            ps.setInt(2, currentSeasonId);
+            ps.setInt(3, currentUserId);
+            ps.setString(4, cmbActivityType.getSelectedItem().toString());
+            ps.setDate(5, new java.sql.Date(dateActivity.getDate().getTime()));
+            ps.setString(6, txtNotes.getText());
+            ps.executeUpdate();
+            JOptionPane.showMessageDialog(this, "Activity added successfully!");
+            loadActivities();
+            clearForm();
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error adding activity: " + e.getMessage());
+        }
+    }//GEN-LAST:event_btnAddActionPerformed
+
+    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
+        if (selectedActivityId == -1) {
+            JOptionPane.showMessageDialog(this, "Please select an activity to delete!");
+            return;
+        }
+        int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this activity?");
+        if (confirm == JOptionPane.YES_OPTION) {
+            try {
+                Connection conn = DBConnection.getConnection();
+                String sql = "DELETE FROM activity WHERE activity_id = ?";
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ps.setInt(1, selectedActivityId);
+                ps.executeUpdate();
+                JOptionPane.showMessageDialog(this, "Activity deleted successfully!");
+                loadActivities();
+                clearForm();
+            } catch (SQLException e) {
+                JOptionPane.showMessageDialog(this, "Error deleting activity: " + e.getMessage());
+            }
+        }
+    }//GEN-LAST:event_btnDeleteActionPerformed
+
+    private void btnClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClearActionPerformed
+        clearForm();
+    }//GEN-LAST:event_btnClearActionPerformed
+
+    private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
+        new coconut.ui.farmer.FarmerDashboard(currentUsername, currentUserId).setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btnBackActionPerformed
 
     /**
      * @param args the command line arguments
@@ -125,7 +278,7 @@ public class ActivityForm extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new ActivityForm().setVisible(true));
+        java.awt.EventQueue.invokeLater(() -> new ActivityForm("farmer", 2).setVisible(true));
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

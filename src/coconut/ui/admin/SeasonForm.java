@@ -3,7 +3,10 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package coconut.ui.admin;
-
+import coconut.db.DBConnection;
+import java.sql.*;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.JOptionPane;
 /**
  *
  * @author navee
@@ -12,11 +15,47 @@ public class SeasonForm extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(SeasonForm.class.getName());
 
-    /**
-     * Creates new form SeasonForm
-     */
-    public SeasonForm() {
+    
+ private String currentUsername;
+    private int currentUserId;
+    private int selectedSeasonId = -1;
+
+    public SeasonForm(String username, int userId) {
         initComponents();
+        setLocationRelativeTo(null);
+        this.currentUsername = username;
+        this.currentUserId = userId;
+        loadSeasons();
+    }
+    private void loadSeasons() {
+        try {
+            Connection conn = DBConnection.getConnection();
+            String sql = "SELECT * FROM season";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            DefaultTableModel model = new DefaultTableModel(
+                new String[]{"ID", "Season Name", "Start Date", "End Date", "Status"}, 0
+            );
+            while (rs.next()) {
+                model.addRow(new Object[]{
+                    rs.getInt("season_id"),
+                    rs.getString("season_name"),
+                    rs.getDate("start_date"),
+                    rs.getDate("end_date"),
+                    rs.getString("status")
+                });
+            }
+            tblSeasons.setModel(model);
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error loading seasons: " + e.getMessage());
+        }
+    }
+    private void clearForm() {
+        txtSeasonName.setText("");
+        dateStart.setDate(null);
+        dateEnd.setDate(null);
+        cmbStatus.setSelectedIndex(0);
+        selectedSeasonId = -1;
     }
 
     /**
@@ -65,6 +104,11 @@ public class SeasonForm extends javax.swing.JFrame {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
+        tblSeasons.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblSeasonsMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(tblSeasons);
 
         jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 70, -1, -1));
@@ -88,24 +132,121 @@ public class SeasonForm extends javax.swing.JFrame {
         jPanel1.add(cmbStatus, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 250, -1, -1));
 
         btnAdd.setText("Add");
+        btnAdd.addActionListener(this::btnAddActionPerformed);
         jPanel1.add(btnAdd, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 340, -1, -1));
 
         btnUpdate.setText("Update");
+        btnUpdate.addActionListener(this::btnUpdateActionPerformed);
         jPanel1.add(btnUpdate, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 340, -1, -1));
 
         btnDelete.setText("Delete");
+        btnDelete.addActionListener(this::btnDeleteActionPerformed);
         jPanel1.add(btnDelete, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 340, -1, -1));
 
         btnClear.setText("Clear");
+        btnClear.addActionListener(this::btnClearActionPerformed);
         jPanel1.add(btnClear, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 380, -1, -1));
 
         btnBack.setText("Back");
+        btnBack.addActionListener(this::btnBackActionPerformed);
         jPanel1.add(btnBack, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 510, -1, -1));
 
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 870, 560));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void tblSeasonsMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblSeasonsMouseClicked
+       int row = tblSeasons.getSelectedRow();
+        if (row != -1) {
+            selectedSeasonId = (int) tblSeasons.getValueAt(row, 0);
+            txtSeasonName.setText(tblSeasons.getValueAt(row, 1).toString());
+            dateStart.setDate((java.util.Date) tblSeasons.getValueAt(row, 2));
+            dateEnd.setDate((java.util.Date) tblSeasons.getValueAt(row, 3));
+            cmbStatus.setSelectedItem(tblSeasons.getValueAt(row, 4).toString()); // TODO add your handling code here:
+        }
+    }//GEN-LAST:event_tblSeasonsMouseClicked
+
+    private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
+          if (txtSeasonName.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter season name!");
+            return;
+        }
+        if (dateStart.getDate() == null || dateEnd.getDate() == null) {
+            JOptionPane.showMessageDialog(this, "Please select start and end dates!");
+            return;
+        }
+        try {
+            Connection conn = DBConnection.getConnection();
+            String sql = "INSERT INTO season (season_name, start_date, end_date, status, created_by) VALUES (?, ?, ?, ?, ?)";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, txtSeasonName.getText());
+            ps.setDate(2, new java.sql.Date(dateStart.getDate().getTime()));
+            ps.setDate(3, new java.sql.Date(dateEnd.getDate().getTime()));
+            ps.setString(4, cmbStatus.getSelectedItem().toString());
+            ps.setInt(5, currentUserId);
+            ps.executeUpdate();
+            JOptionPane.showMessageDialog(this, "Season added successfully!");
+            loadSeasons();
+            clearForm();
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error adding season: " + e.getMessage());
+        }      // TODO add your handling code here:
+    }//GEN-LAST:event_btnAddActionPerformed
+
+    private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
+            if (selectedSeasonId == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a season to update!");
+            return;
+        }
+        try {
+            Connection conn = DBConnection.getConnection();
+            String sql = "UPDATE season SET season_name=?, start_date=?, end_date=?, status=? WHERE season_id=?";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, txtSeasonName.getText());
+            ps.setDate(2, new java.sql.Date(dateStart.getDate().getTime()));
+            ps.setDate(3, new java.sql.Date(dateEnd.getDate().getTime()));
+            ps.setString(4, cmbStatus.getSelectedItem().toString());
+            ps.setInt(5, selectedSeasonId);
+            ps.executeUpdate();
+            JOptionPane.showMessageDialog(this, "Season updated successfully!");
+            loadSeasons();
+            clearForm();
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error updating season: " + e.getMessage());
+        }
+    }//GEN-LAST:event_btnUpdateActionPerformed
+
+    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
+           if (selectedSeasonId == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a season to delete!");
+            return;
+        }
+        int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this season?");
+        if (confirm == JOptionPane.YES_OPTION) {
+            try {
+                Connection conn = DBConnection.getConnection();
+                String sql = "DELETE FROM season WHERE season_id = ?";
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ps.setInt(1, selectedSeasonId);
+                ps.executeUpdate();
+                JOptionPane.showMessageDialog(this, "Season deleted successfully!");
+                loadSeasons();
+                clearForm();
+            } catch (SQLException e) {
+                JOptionPane.showMessageDialog(this, "Error deleting season: " + e.getMessage());
+            }
+        }
+    }//GEN-LAST:event_btnDeleteActionPerformed
+
+    private void btnClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClearActionPerformed
+               clearForm();
+    }//GEN-LAST:event_btnClearActionPerformed
+
+    private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
+        new coconut.ui.admin.AdminDashboard(currentUsername, currentUserId).setVisible(true);
+        this.dispose(); 
+    }//GEN-LAST:event_btnBackActionPerformed
 
     /**
      * @param args the command line arguments
@@ -129,7 +270,7 @@ public class SeasonForm extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new SeasonForm().setVisible(true));
+        java.awt.EventQueue.invokeLater(() -> new SeasonForm("admin", 1).setVisible(true));
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
