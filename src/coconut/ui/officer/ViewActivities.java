@@ -3,7 +3,10 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package coconut.ui.officer;
-
+import coconut.db.DBConnection;
+import java.sql.*;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.JOptionPane;
 /**
  *
  * @author navee
@@ -16,14 +19,61 @@ public class ViewActivities extends javax.swing.JFrame {
      * Creates new form ViewActivities
      */
     private String currentUsername;
-private int currentUserId;
+    private int currentUserId;
 
-public ViewActivities(String username, int userId) {
-    initComponents();
-    setLocationRelativeTo(null);
-    this.currentUsername = username;
-    this.currentUserId = userId;
-}
+    public ViewActivities(String username, int userId) {
+        initComponents();
+        setLocationRelativeTo(null);
+        this.currentUsername = username;
+        this.currentUserId = userId;
+        loadPlots();
+    }
+
+    private void loadPlots() {
+        try {
+            Connection conn = DBConnection.getConnection();
+            PreparedStatement ps = conn.prepareStatement(
+                "SELECT p.plot_id, p.plot_name, u.full_name FROM plot p JOIN user u ON p.farmer_id = u.user_id"
+            );
+            ResultSet rs = ps.executeQuery();
+            cmbPlot.removeAllItems();
+            while (rs.next()) {
+                cmbPlot.addItem(rs.getInt("plot_id") + " - " + rs.getString("plot_name") + " (" + rs.getString("full_name") + ")");
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error loading plots: " + e.getMessage());
+        }
+    }
+
+    private void loadActivities() {
+        try {
+            int plotId = Integer.parseInt(cmbPlot.getSelectedItem().toString().split(" - ")[0]);
+            Connection conn = DBConnection.getConnection();
+            PreparedStatement ps = conn.prepareStatement(
+                "SELECT a.activity_type, a.activity_date, a.notes, u.full_name " +
+                "FROM activity a " +
+                "JOIN user u ON a.recorded_by = u.user_id " +
+                "WHERE a.plot_id = ? " +
+                "ORDER BY a.activity_date DESC"
+            );
+            ps.setInt(1, plotId);
+            ResultSet rs = ps.executeQuery();
+            DefaultTableModel model = new DefaultTableModel(
+                new String[]{"Activity Type", "Date", "Notes", "Recorded By"}, 0
+            );
+            while (rs.next()) {
+                model.addRow(new Object[]{
+                    rs.getString("activity_type"),
+                    rs.getDate("activity_date"),
+                    rs.getString("notes"),
+                    rs.getString("full_name")
+                });
+            }
+            tblActivities.setModel(model);
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error loading activities: " + e.getMessage());
+        }
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -51,12 +101,14 @@ public ViewActivities(String username, int userId) {
         jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 30, -1, -1));
 
         btnBack.setText("Back");
+        btnBack.addActionListener(this::btnBackActionPerformed);
         jPanel1.add(btnBack, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 560, -1, -1));
 
         jLabel2.setText("Select Plot");
         jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 140, -1, -1));
 
         cmbPlot.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        cmbPlot.addActionListener(this::cmbPlotActionPerformed);
         jPanel1.add(cmbPlot, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 180, -1, -1));
 
         tblActivities.setModel(new javax.swing.table.DefaultTableModel(
@@ -78,6 +130,17 @@ public ViewActivities(String username, int userId) {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void cmbPlotActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbPlotActionPerformed
+         if (cmbPlot.getSelectedItem() != null) {
+            loadActivities();
+        }
+    }//GEN-LAST:event_cmbPlotActionPerformed
+
+    private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
+        new coconut.ui.officer.OfficerDashboard(currentUsername, currentUserId).setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btnBackActionPerformed
 
     /**
      * @param args the command line arguments

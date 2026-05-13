@@ -3,7 +3,10 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package coconut.ui.officer;
-
+import coconut.db.DBConnection;
+import java.sql.*;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -17,14 +20,48 @@ public class OfficerDashboard extends javax.swing.JFrame {
      * Creates new form OfficerDashboard
      */
 private String currentUsername;
-private int currentUserId;
+    private int currentUserId;
 
-public OfficerDashboard(String username, int userId) {
-    initComponents();
-    setLocationRelativeTo(null);
-    this.currentUsername = username;
-    this.currentUserId = userId;
-}
+    public OfficerDashboard(String username, int userId) {
+        initComponents();
+        setLocationRelativeTo(null);
+        this.currentUsername = username;
+        this.currentUserId = userId;
+        loadDashboard();
+    }
+
+    private void loadDashboard() {
+        lblWelcome.setText("Welcome, " + currentUsername);
+        try {
+            Connection conn = DBConnection.getConnection();
+
+            // Load recent inspections done by this officer
+            PreparedStatement ps = conn.prepareStatement(
+                "SELECT i.inspection_date, p.plot_name, i.health_status, i.recommendation " +
+                "FROM inspection i " +
+                "JOIN plot p ON i.plot_id = p.plot_id " +
+                "WHERE i.officer_id = ? " +
+                "ORDER BY i.inspection_date DESC LIMIT 10"
+            );
+            ps.setInt(1, currentUserId);
+            ResultSet rs = ps.executeQuery();
+            DefaultTableModel model = new DefaultTableModel(
+                new String[]{"Date", "Plot", "Health Status", "Recommendation"}, 0
+            );
+            while (rs.next()) {
+                model.addRow(new Object[]{
+                    rs.getDate("inspection_date"),
+                    rs.getString("plot_name"),
+                    rs.getString("health_status"),
+                    rs.getString("recommendation")
+                });
+            }
+            tblInspections.setModel(model);
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error loading dashboard: " + e.getMessage());
+        }
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -53,6 +90,7 @@ public OfficerDashboard(String username, int userId) {
         jPanel1.add(lblWelcome, new org.netbeans.lib.awtextra.AbsoluteConstraints(660, 30, -1, -1));
 
         btnLogout.setText("Logout");
+        btnLogout.addActionListener(this::btnLogoutActionPerformed);
         jPanel1.add(btnLogout, new org.netbeans.lib.awtextra.AbsoluteConstraints(770, 30, -1, -1));
 
         tblInspections.setModel(new javax.swing.table.DefaultTableModel(
@@ -71,9 +109,11 @@ public OfficerDashboard(String username, int userId) {
         jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 130, -1, -1));
 
         btnInspection.setText("Add Inspection");
+        btnInspection.addActionListener(this::btnInspectionActionPerformed);
         jPanel1.add(btnInspection, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 220, -1, -1));
 
         btnActivities.setText("View Activities");
+        btnActivities.addActionListener(this::btnActivitiesActionPerformed);
         jPanel1.add(btnActivities, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 310, -1, -1));
 
         jLabel1.setText("Recent Inspections");
@@ -83,6 +123,21 @@ public OfficerDashboard(String username, int userId) {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btnLogoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLogoutActionPerformed
+        new coconut.ui.LoginForm().setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btnLogoutActionPerformed
+
+    private void btnInspectionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnInspectionActionPerformed
+        new coconut.ui.officer.InspectionForm(currentUsername, currentUserId).setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btnInspectionActionPerformed
+
+    private void btnActivitiesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnActivitiesActionPerformed
+        new coconut.ui.officer.ViewActivities(currentUsername, currentUserId).setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btnActivitiesActionPerformed
 
     /**
      * @param args the command line arguments

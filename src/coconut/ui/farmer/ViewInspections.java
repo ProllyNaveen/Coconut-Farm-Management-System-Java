@@ -5,6 +5,7 @@
 package coconut.ui.farmer;
 import coconut.db.DBConnection;
 import java.sql.*;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.JOptionPane;
 /**
  *
@@ -17,15 +18,61 @@ public class ViewInspections extends javax.swing.JFrame {
     /**
      * Creates new form ViewInspections
      */
-    private String currentUsername;
-private int currentUserId;
+private String currentUsername;
+    private int currentUserId;
+    private int currentPlotId = -1;
 
-public ViewInspections(String username, int userId) {
-    initComponents();
-    setLocationRelativeTo(null);
-    this.currentUsername = username;
-    this.currentUserId = userId;
-}
+    public ViewInspections(String username, int userId) {
+        initComponents();
+        setLocationRelativeTo(null);
+        this.currentUsername = username;
+        this.currentUserId = userId;
+        loadInspections();
+    }
+
+    private void loadInspections() {
+        try {
+            Connection conn = DBConnection.getConnection();
+
+            // Get farmer's plot first
+            PreparedStatement ps = conn.prepareStatement("SELECT plot_id FROM plot WHERE farmer_id = ?");
+            ps.setInt(1, currentUserId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                currentPlotId = rs.getInt("plot_id");
+            } else {
+                JOptionPane.showMessageDialog(this, "You have not registered a plot yet!");
+                return;
+            }
+
+            // Load inspections with officer name
+            PreparedStatement ps2 = conn.prepareStatement(
+                "SELECT i.inspection_date, u.full_name, i.health_status, i.pest_issues, i.recommendation " +
+                "FROM inspection i " +
+                "JOIN user u ON i.officer_id = u.user_id " +
+                "WHERE i.plot_id = ? " +
+                "ORDER BY i.inspection_date DESC"
+            );
+            ps2.setInt(1, currentPlotId);
+            ResultSet rs2 = ps2.executeQuery();
+            DefaultTableModel model = new DefaultTableModel(
+                new String[]{"Date", "Officer", "Health Status", "Pest Issues", "Recommendation"}, 0
+            );
+            while (rs2.next()) {
+                model.addRow(new Object[]{
+                    rs2.getDate("inspection_date"),
+                    rs2.getString("full_name"),
+                    rs2.getString("health_status"),
+                    rs2.getString("pest_issues"),
+                    rs2.getString("recommendation")
+                });
+            }
+            tblInspections.setModel(model);
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error loading inspections: " + e.getMessage());
+        }
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -51,6 +98,7 @@ public ViewInspections(String username, int userId) {
         jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 20, -1, -1));
 
         btnBack.setText("Back");
+        btnBack.addActionListener(this::btnBackActionPerformed);
         jPanel1.add(btnBack, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 470, -1, -1));
 
         tblInspections.setModel(new javax.swing.table.DefaultTableModel(
@@ -80,6 +128,11 @@ public ViewInspections(String username, int userId) {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
+        new coconut.ui.farmer.FarmerDashboard(currentUsername, currentUserId).setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btnBackActionPerformed
 
     /**
      * @param args the command line arguments

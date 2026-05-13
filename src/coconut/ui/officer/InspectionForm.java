@@ -3,7 +3,10 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package coconut.ui.officer;
-
+import coconut.db.DBConnection;
+import java.sql.*;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.JOptionPane;
 /**
  *
  * @author navee
@@ -16,14 +19,95 @@ public class InspectionForm extends javax.swing.JFrame {
      * Creates new form InspectionForm
      */
    private String currentUsername;
-private int currentUserId;
+    private int currentUserId;
+    private int currentSeasonId = -1;
+    private int selectedInspectionId = -1;
 
-public InspectionForm(String username, int userId) {
-    initComponents();
-    setLocationRelativeTo(null);
-    this.currentUsername = username;
-    this.currentUserId = userId;
-}
+    public InspectionForm(String username, int userId) {
+        initComponents();
+        setLocationRelativeTo(null);
+        this.currentUsername = username;
+        this.currentUserId = userId;
+        loadPlots();
+        loadActiveSeason();
+        loadInspections();
+    }
+
+    private void loadPlots() {
+        try {
+            Connection conn = DBConnection.getConnection();
+            PreparedStatement ps = conn.prepareStatement(
+                "SELECT p.plot_id, p.plot_name, u.full_name FROM plot p JOIN user u ON p.farmer_id = u.user_id"
+            );
+            ResultSet rs = ps.executeQuery();
+            cmbPlot.removeAllItems();
+            while (rs.next()) {
+                cmbPlot.addItem(rs.getInt("plot_id") + " - " + rs.getString("plot_name") + " (" + rs.getString("full_name") + ")");
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error loading plots: " + e.getMessage());
+        }
+    }
+
+    private void loadActiveSeason() {
+        try {
+            Connection conn = DBConnection.getConnection();
+            PreparedStatement ps = conn.prepareStatement("SELECT season_id FROM season WHERE status = 'Active' LIMIT 1");
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                currentSeasonId = rs.getInt("season_id");
+            } else {
+                JOptionPane.showMessageDialog(this, "No active season found!");
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error loading season: " + e.getMessage());
+        }
+    }
+
+    private void loadInspections() {
+        try {
+            Connection conn = DBConnection.getConnection();
+            PreparedStatement ps = conn.prepareStatement(
+                "SELECT i.inspection_id, i.inspection_date, p.plot_name, i.health_status, i.pest_issues, i.recommendation " +
+                "FROM inspection i " +
+                "JOIN plot p ON i.plot_id = p.plot_id " +
+                "WHERE i.officer_id = ? " +
+                "ORDER BY i.inspection_date DESC"
+            );
+            ps.setInt(1, currentUserId);
+            ResultSet rs = ps.executeQuery();
+            DefaultTableModel model = new DefaultTableModel(
+                new String[]{"ID", "Date", "Plot", "Health Status", "Pest Issues", "Recommendation"}, 0
+            );
+            while (rs.next()) {
+                model.addRow(new Object[]{
+                    rs.getInt("inspection_id"),
+                    rs.getDate("inspection_date"),
+                    rs.getString("plot_name"),
+                    rs.getString("health_status"),
+                    rs.getString("pest_issues"),
+                    rs.getString("recommendation")
+                });
+            }
+            tblInspections.setModel(model);
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error loading inspections: " + e.getMessage());
+        }
+    }
+
+    private void clearForm() {
+        cmbPlot.setSelectedIndex(0);
+        dateInspection.setDate(null);
+        cmbHealthStatus.setSelectedIndex(0);
+        txtPestIssues.setText("");
+        txtRecommendation.setText("");
+        selectedInspectionId = -1;
+    }
+
+    private int getSelectedPlotId() {
+        String selected = cmbPlot.getSelectedItem().toString();
+        return Integer.parseInt(selected.split(" - ")[0]);
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -47,7 +131,7 @@ public InspectionForm(String username, int userId) {
         txtPestIssues = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
+        txtRecommendation = new javax.swing.JTextArea();
         btnAdd = new javax.swing.JButton();
         btnUpdate = new javax.swing.JButton();
         btnClear = new javax.swing.JButton();
@@ -64,6 +148,7 @@ public InspectionForm(String username, int userId) {
         jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 20, -1, -1));
 
         btnBack.setText("Back");
+        btnBack.addActionListener(this::btnBackActionPerformed);
         jPanel1.add(btnBack, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 540, -1, -1));
 
         cmbPlot.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
@@ -79,7 +164,7 @@ public InspectionForm(String username, int userId) {
         jLabel4.setText("Health Status");
         jPanel1.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 220, -1, -1));
 
-        cmbHealthStatus.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Good", "At Risk", "Critical" }));
+        cmbHealthStatus.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Good", "At_Risk", "Critical" }));
         jPanel1.add(cmbHealthStatus, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 220, -1, -1));
 
         jLabel5.setText("Pest Issues");
@@ -89,19 +174,22 @@ public InspectionForm(String username, int userId) {
         jLabel6.setText("Recommendation");
         jPanel1.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 320, -1, -1));
 
-        jTextArea1.setColumns(20);
-        jTextArea1.setRows(5);
-        jScrollPane1.setViewportView(jTextArea1);
+        txtRecommendation.setColumns(20);
+        txtRecommendation.setRows(5);
+        jScrollPane1.setViewportView(txtRecommendation);
 
         jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 340, -1, -1));
 
         btnAdd.setText("Add");
+        btnAdd.addActionListener(this::btnAddActionPerformed);
         jPanel1.add(btnAdd, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 450, -1, -1));
 
         btnUpdate.setText("Update");
+        btnUpdate.addActionListener(this::btnUpdateActionPerformed);
         jPanel1.add(btnUpdate, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 450, -1, -1));
 
         btnClear.setText("Clear");
+        btnClear.addActionListener(this::btnClearActionPerformed);
         jPanel1.add(btnClear, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 510, -1, -1));
 
         tblInspections.setModel(new javax.swing.table.DefaultTableModel(
@@ -115,6 +203,11 @@ public InspectionForm(String username, int userId) {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
+        tblInspections.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblInspectionsMouseClicked(evt);
+            }
+        });
         jScrollPane2.setViewportView(tblInspections);
 
         jPanel1.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 40, -1, -1));
@@ -126,6 +219,81 @@ public InspectionForm(String username, int userId) {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void tblInspectionsMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblInspectionsMouseClicked
+        int row = tblInspections.getSelectedRow();
+        if (row != -1) {
+            selectedInspectionId = (int) tblInspections.getValueAt(row, 0);
+            dateInspection.setDate((java.util.Date) tblInspections.getValueAt(row, 1));
+            cmbHealthStatus.setSelectedItem(tblInspections.getValueAt(row, 3).toString());
+            txtPestIssues.setText(tblInspections.getValueAt(row, 4).toString());
+            txtRecommendation.setText(tblInspections.getValueAt(row, 5).toString());
+        }
+    }//GEN-LAST:event_tblInspectionsMouseClicked
+
+    private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
+        if (cmbPlot.getItemCount() == 0) {
+            JOptionPane.showMessageDialog(this, "No plots available!");
+            return;
+        }
+        if (dateInspection.getDate() == null) {
+            JOptionPane.showMessageDialog(this, "Please select inspection date!");
+            return;
+        }
+        if (currentSeasonId == -1) {
+            JOptionPane.showMessageDialog(this, "No active season found!");
+            return;
+        }
+        try {
+            Connection conn = DBConnection.getConnection();
+            String sql = "INSERT INTO inspection (plot_id, season_id, officer_id, inspection_date, health_status, pest_issues, recommendation) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, getSelectedPlotId());
+            ps.setInt(2, currentSeasonId);
+            ps.setInt(3, currentUserId);
+            ps.setDate(4, new java.sql.Date(dateInspection.getDate().getTime()));
+            ps.setString(5, cmbHealthStatus.getSelectedItem().toString());
+            ps.setString(6, txtPestIssues.getText());
+            ps.setString(7, txtRecommendation.getText());
+            ps.executeUpdate();
+            JOptionPane.showMessageDialog(this, "Inspection added successfully!");
+            loadInspections();
+            clearForm();
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error adding inspection: " + e.getMessage());
+        }
+    }//GEN-LAST:event_btnAddActionPerformed
+
+    private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
+        if (selectedInspectionId == -1) {
+            JOptionPane.showMessageDialog(this, "Please select an inspection to update!");
+            return;
+        }
+        try {
+            Connection conn = DBConnection.getConnection();
+            String sql = "UPDATE inspection SET health_status=?, pest_issues=?, recommendation=? WHERE inspection_id=?";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, cmbHealthStatus.getSelectedItem().toString());
+            ps.setString(2, txtPestIssues.getText());
+            ps.setString(3, txtRecommendation.getText());
+            ps.setInt(4, selectedInspectionId);
+            ps.executeUpdate();
+            JOptionPane.showMessageDialog(this, "Inspection updated successfully!");
+            loadInspections();
+            clearForm();
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error updating inspection: " + e.getMessage());
+        }
+    }//GEN-LAST:event_btnUpdateActionPerformed
+
+    private void btnClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClearActionPerformed
+        clearForm();
+    }//GEN-LAST:event_btnClearActionPerformed
+
+    private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
+        new coconut.ui.officer.OfficerDashboard(currentUsername, currentUserId).setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btnBackActionPerformed
 
     /**
      * @param args the command line arguments
@@ -170,8 +338,8 @@ public InspectionForm(String username, int userId) {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTextArea jTextArea1;
     private javax.swing.JTable tblInspections;
     private javax.swing.JTextField txtPestIssues;
+    private javax.swing.JTextArea txtRecommendation;
     // End of variables declaration//GEN-END:variables
 }

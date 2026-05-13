@@ -3,7 +3,17 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package coconut.ui.admin;
-
+import net.sf.jasperreports.engine.JasperCompileManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.view.JasperViewer;
+import java.util.HashMap;
+import java.util.Map;
+import java.sql.*;
+import javax.swing.JOptionPane;
+import coconut.db.DBConnection;
 /**
  *
  * @author navee
@@ -16,14 +26,29 @@ public class ReportForm extends javax.swing.JFrame {
      * Creates new form ReportForm
      */
 private String currentUsername;
-private int currentUserId;
+    private int currentUserId;
 
-public ReportForm(String username, int userId) {
-    initComponents();
-    setLocationRelativeTo(null);
-    this.currentUsername = username;
-    this.currentUserId = userId;
-}
+    public ReportForm(String username, int userId) {
+        initComponents();
+        setLocationRelativeTo(null);
+        this.currentUsername = username;
+        this.currentUserId = userId;
+        loadSeasons();
+    }
+
+    private void loadSeasons() {
+        try {
+            Connection conn = DBConnection.getConnection();
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM season");
+            ResultSet rs = ps.executeQuery();
+            cmbSeason.removeAllItems();
+            while (rs.next()) {
+                cmbSeason.addItem(rs.getInt("season_id") + " - " + rs.getString("season_name"));
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error loading seasons: " + e.getMessage());
+        }
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -39,7 +64,6 @@ public ReportForm(String username, int userId) {
         jLabel2 = new javax.swing.JLabel();
         cmbSeason = new javax.swing.JComboBox<>();
         btnGenerate = new javax.swing.JButton();
-        btnExport = new javax.swing.JButton();
         reportPanel = new javax.swing.JPanel();
         btnBack = new javax.swing.JButton();
 
@@ -57,10 +81,8 @@ public ReportForm(String username, int userId) {
         jPanel1.add(cmbSeason, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 130, -1, -1));
 
         btnGenerate.setText("Generate Report");
+        btnGenerate.addActionListener(this::btnGenerateActionPerformed);
         jPanel1.add(btnGenerate, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 190, -1, -1));
-
-        btnExport.setText("Export to PDF");
-        jPanel1.add(btnExport, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 220, -1, -1));
 
         reportPanel.setBackground(new java.awt.Color(102, 255, 204));
 
@@ -78,12 +100,42 @@ public ReportForm(String username, int userId) {
         jPanel1.add(reportPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 50, 550, 480));
 
         btnBack.setText("Back");
+        btnBack.addActionListener(this::btnBackActionPerformed);
         jPanel1.add(btnBack, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 540, -1, -1));
 
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 860, 590));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btnGenerateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGenerateActionPerformed
+        try {
+        // Get selected season ID
+        String selected = cmbSeason.getSelectedItem().toString();
+        int seasonId = Integer.parseInt(selected.split(" - ")[0]);
+
+        // Compile the report
+        String reportPath = "src/reports/SeasonalReport.jrxml";
+        JasperReport jasperReport = JasperCompileManager.compileReport(reportPath);
+
+        // Pass season ID as parameter
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("SEASON_ID", seasonId);
+
+        // Fill and show report
+        Connection conn = DBConnection.getConnection();
+        JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, conn);
+        JasperViewer.viewReport(jasperPrint, false);
+
+    } catch (JRException e) {
+        JOptionPane.showMessageDialog(this, "Error generating report: " + e.getMessage());
+    }
+    }//GEN-LAST:event_btnGenerateActionPerformed
+
+    private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
+       new coconut.ui.admin.AdminDashboard(currentUsername, currentUserId).setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btnBackActionPerformed
 
     /**
      * @param args the command line arguments
@@ -112,7 +164,6 @@ public ReportForm(String username, int userId) {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnBack;
-    private javax.swing.JButton btnExport;
     private javax.swing.JButton btnGenerate;
     private javax.swing.JComboBox<String> cmbSeason;
     private javax.swing.JLabel jLabel1;
