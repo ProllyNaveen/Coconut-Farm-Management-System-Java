@@ -27,6 +27,11 @@ public class PlotForm extends javax.swing.JFrame {
         this.currentUsername = username;
         this.currentUserId = userId;
         loadPlot();
+        setSize(900, 600);
+setLocationRelativeTo(null);
+setResizable(false); // this prevents resizing - optional
+// Set main background color
+jPanel1.setBackground(new java.awt.Color(245, 245, 245));
     }
 
     private void loadPlot() {
@@ -83,8 +88,15 @@ public class PlotForm extends javax.swing.JFrame {
         btnClear = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setMaximumSize(new java.awt.Dimension(900, 600));
+        setMinimumSize(new java.awt.Dimension(900, 600));
+        setPreferredSize(new java.awt.Dimension(900, 600));
+        setResizable(false);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
+        jPanel1.setMaximumSize(new java.awt.Dimension(900, 600));
+        jPanel1.setMinimumSize(new java.awt.Dimension(900, 600));
+        jPanel1.setPreferredSize(new java.awt.Dimension(900, 600));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel1.setText("My Plot");
@@ -122,7 +134,7 @@ public class PlotForm extends javax.swing.JFrame {
         btnClear.addActionListener(this::btnClearActionPerformed);
         jPanel1.add(btnClear, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 340, -1, -1));
 
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 850, 560));
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 900, 600));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -138,13 +150,22 @@ public class PlotForm extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "Please fill in all fields!");
             return;
         }
+        
         try {
             int treeCount = Integer.parseInt(txtTreeCount.getText());
             double landSize = Double.parseDouble(txtLandSize.getText());
 
             Connection conn = DBConnection.getConnection();
-
+            
             if (currentPlotId == -1) {
+                // Double check no plot exists already
+            PreparedStatement check = conn.prepareStatement("SELECT COUNT(*) FROM plot WHERE farmer_id = ?");
+            check.setInt(1, currentUserId);
+            ResultSet rs = check.executeQuery();
+            if (rs.next() && rs.getInt(1) > 0) {
+            JOptionPane.showMessageDialog(this, "You already have a registered plot!");
+            return;
+}
                 // Insert new plot
                 String sql = "INSERT INTO plot (farmer_id, plot_name, location, tree_count, land_size_acres) VALUES (?, ?, ?, ?, ?)";
                 PreparedStatement ps = conn.prepareStatement(sql);

@@ -27,6 +27,12 @@ public class ViewActivities extends javax.swing.JFrame {
         this.currentUsername = username;
         this.currentUserId = userId;
         loadPlots();
+        setSize(900, 600);
+setLocationRelativeTo(null);
+setResizable(false); // this prevents resizing - optional
+// Set main background color
+jPanel1.setBackground(new java.awt.Color(245, 245, 245));
+
     }
 
     private void loadPlots() {
@@ -93,8 +99,15 @@ public class ViewActivities extends javax.swing.JFrame {
         tblActivities = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setMaximumSize(new java.awt.Dimension(900, 600));
+        setMinimumSize(new java.awt.Dimension(900, 600));
+        setPreferredSize(new java.awt.Dimension(900, 600));
+        setResizable(false);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
+        jPanel1.setMaximumSize(new java.awt.Dimension(900, 600));
+        jPanel1.setMinimumSize(new java.awt.Dimension(900, 600));
+        jPanel1.setPreferredSize(new java.awt.Dimension(900, 600));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel1.setText("Farm Activities");
@@ -102,14 +115,14 @@ public class ViewActivities extends javax.swing.JFrame {
 
         btnBack.setText("Back");
         btnBack.addActionListener(this::btnBackActionPerformed);
-        jPanel1.add(btnBack, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 560, -1, -1));
+        jPanel1.add(btnBack, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 480, -1, -1));
 
         jLabel2.setText("Select Plot");
-        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 140, -1, -1));
+        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 130, -1, -1));
 
         cmbPlot.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
         cmbPlot.addActionListener(this::cmbPlotActionPerformed);
-        jPanel1.add(cmbPlot, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 180, -1, -1));
+        jPanel1.add(cmbPlot, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 160, -1, -1));
 
         tblActivities.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -126,7 +139,7 @@ public class ViewActivities extends javax.swing.JFrame {
 
         jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 90, -1, -1));
 
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 940, 620));
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents

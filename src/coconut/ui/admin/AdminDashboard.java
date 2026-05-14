@@ -28,12 +28,31 @@ private String currentUsername;
         this.currentUsername = username;
         this.currentUserId = userId;
         loadDashboard();
+        setSize(900, 600);
+setLocationRelativeTo(null);
+setResizable(false); // this prevents resizing - optional
+// Set main background color
+jPanel1.setBackground(new java.awt.Color(245, 245, 245));
+styleTable(tblInspections);
     }
-
+private void styleTable(javax.swing.JTable table) {
+    table.setRowHeight(30);
+    table.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 12));
+    table.setForeground(java.awt.Color.BLACK);
+    table.setGridColor(new java.awt.Color(173, 216, 230));
+    table.setSelectionBackground(new java.awt.Color(173, 216, 230));
+    table.setDefaultEditor(Object.class, null);
+    
+    javax.swing.table.JTableHeader header = table.getTableHeader();
+    header.setOpaque(false);
+    header.setBackground(new java.awt.Color(173, 216, 230));
+    header.setForeground(java.awt.Color.BLUE);
+    header.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 13));
+}
 private void loadDashboard() {
         try {
             Connection conn = DBConnection.getConnection();
-
+             lblWelcomeAdmin.setText("Welcome, " + currentUsername);
             // Total farmers
             PreparedStatement ps1 = conn.prepareStatement("SELECT COUNT(*) FROM user WHERE role = 'farmer'");
             ResultSet rs1 = ps1.executeQuery();
@@ -117,62 +136,84 @@ private void loadDashboard() {
         btnUsers = new javax.swing.JButton();
         btnReports = new javax.swing.JButton();
         jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setMaximumSize(new java.awt.Dimension(900, 600));
+        setMinimumSize(new java.awt.Dimension(900, 600));
+        setPreferredSize(new java.awt.Dimension(900, 600));
+        setResizable(false);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
+        jPanel1.setMaximumSize(new java.awt.Dimension(900, 600));
+        jPanel1.setMinimumSize(new java.awt.Dimension(900, 600));
+        jPanel1.setPreferredSize(new java.awt.Dimension(900, 600));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        lblWelcomeAdmin.setText("Welcome Admin");
-        jPanel1.add(lblWelcomeAdmin, new org.netbeans.lib.awtextra.AbsoluteConstraints(680, 10, -1, -1));
+        lblWelcomeAdmin.setFont(new java.awt.Font("Gadugi", 1, 14)); // NOI18N
+        lblWelcomeAdmin.setText("Welcome");
+        jPanel1.add(lblWelcomeAdmin, new org.netbeans.lib.awtextra.AbsoluteConstraints(730, 20, -1, -1));
 
+        btnLogout.setBackground(new java.awt.Color(255, 0, 0));
+        btnLogout.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btnLogout.setForeground(new java.awt.Color(255, 255, 255));
         btnLogout.setText("Logout");
+        btnLogout.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         btnLogout.addActionListener(this::btnLogoutActionPerformed);
-        jPanel1.add(btnLogout, new org.netbeans.lib.awtextra.AbsoluteConstraints(660, 40, -1, -1));
+        jPanel1.add(btnLogout, new org.netbeans.lib.awtextra.AbsoluteConstraints(790, 50, 70, 30));
 
-        jPanel2.setBackground(new java.awt.Color(153, 255, 204));
+        jPanel2.setBackground(new java.awt.Color(102, 204, 255));
         jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
+        lblTotalPlots.setFont(new java.awt.Font("Myanmar Text", 1, 14)); // NOI18N
         lblTotalPlots.setText("0");
-        jPanel2.add(lblTotalPlots, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 30, -1, -1));
+        jPanel2.add(lblTotalPlots, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 20, -1, -1));
 
+        jLabel6.setFont(new java.awt.Font("Myanmar Text", 1, 14)); // NOI18N
         jLabel6.setText("Total Plots");
-        jPanel2.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(52, 48, -1, -1));
+        jPanel2.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 50, -1, -1));
 
-        jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 140, 170, 70));
+        jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 110, 150, 80));
 
-        jPanel3.setBackground(new java.awt.Color(153, 255, 204));
+        jPanel3.setBackground(new java.awt.Color(102, 204, 255));
         jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
+        lblActiveSeason.setFont(new java.awt.Font("Myanmar Text", 1, 14)); // NOI18N
         lblActiveSeason.setText("-");
-        jPanel3.add(lblActiveSeason, new org.netbeans.lib.awtextra.AbsoluteConstraints(67, 26, -1, -1));
+        jPanel3.add(lblActiveSeason, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 20, -1, -1));
 
+        jLabel7.setFont(new java.awt.Font("Myanmar Text", 1, 14)); // NOI18N
         jLabel7.setText("Active Season");
-        jPanel3.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 40, -1, -1));
+        jPanel3.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 50, -1, -1));
 
-        jPanel1.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 220, 170, 70));
+        jPanel1.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, 110, 150, 80));
 
-        jPanel4.setBackground(new java.awt.Color(153, 255, 204));
+        jPanel4.setBackground(new java.awt.Color(102, 204, 255));
+        jPanel4.setPreferredSize(new java.awt.Dimension(150, 80));
         jPanel4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
+        lblTotalFarmers.setFont(new java.awt.Font("Myanmar Text", 1, 14)); // NOI18N
         lblTotalFarmers.setText("0");
-        jPanel4.add(lblTotalFarmers, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 10, -1, -1));
+        jPanel4.add(lblTotalFarmers, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 20, -1, -1));
 
+        jLabel5.setFont(new java.awt.Font("Myanmar Text", 1, 14)); // NOI18N
         jLabel5.setText("Total Farmers");
-        jPanel4.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(63, 46, -1, -1));
+        jPanel4.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 50, -1, -1));
 
-        jPanel1.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 40, 170, 70));
+        jPanel1.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 110, 150, 80));
 
-        jPanel5.setBackground(new java.awt.Color(153, 255, 204));
+        jPanel5.setBackground(new java.awt.Color(102, 204, 255));
         jPanel5.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
+        lblTotalHarvest.setFont(new java.awt.Font("Myanmar Text", 1, 14)); // NOI18N
         lblTotalHarvest.setText("0");
-        jPanel5.add(lblTotalHarvest, new org.netbeans.lib.awtextra.AbsoluteConstraints(68, 26, -1, -1));
+        jPanel5.add(lblTotalHarvest, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 20, -1, -1));
 
+        jLabel1.setFont(new java.awt.Font("Myanmar Text", 1, 14)); // NOI18N
         jLabel1.setText("Total Harvest");
-        jPanel5.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 60, -1, -1));
+        jPanel5.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 50, -1, -1));
 
-        jPanel1.add(jPanel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 310, 170, 90));
+        jPanel1.add(jPanel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(610, 110, 150, 80));
 
         tblInspections.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -187,42 +228,57 @@ private void loadDashboard() {
         ));
         jScrollPane2.setViewportView(tblInspections);
 
-        jPanel1.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 70, -1, -1));
+        jPanel1.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 280, 610, 210));
 
+        btnSeasons.setBackground(new java.awt.Color(51, 204, 255));
+        btnSeasons.setFont(new java.awt.Font("Tw Cen MT Condensed", 1, 14)); // NOI18N
         btnSeasons.setText("Manage Seasons");
         btnSeasons.addActionListener(this::btnSeasonsActionPerformed);
-        jPanel1.add(btnSeasons, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 500, -1, -1));
+        jPanel1.add(btnSeasons, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 520, 130, 40));
 
+        btnUsers.setBackground(new java.awt.Color(102, 204, 255));
+        btnUsers.setFont(new java.awt.Font("Tw Cen MT Condensed", 1, 14)); // NOI18N
         btnUsers.setText("Manage Users");
         btnUsers.addActionListener(this::btnUsersActionPerformed);
-        jPanel1.add(btnUsers, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 500, -1, -1));
+        jPanel1.add(btnUsers, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 520, 130, 40));
 
+        btnReports.setBackground(new java.awt.Color(102, 204, 255));
+        btnReports.setFont(new java.awt.Font("Tw Cen MT Condensed", 1, 14)); // NOI18N
         btnReports.setText("Reports");
         btnReports.addActionListener(this::btnReportsActionPerformed);
-        jPanel1.add(btnReports, new org.netbeans.lib.awtextra.AbsoluteConstraints(710, 500, -1, -1));
+        jPanel1.add(btnReports, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 520, 130, 40));
 
-        jLabel2.setText("Recent Inspections");
-        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 50, -1, -1));
+        jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel2.setText("Coconut Farm Management System");
+        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 20, -1, -1));
 
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(-10, 0, 870, 540));
+        jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jLabel3.setText("Recent Inspections");
+        jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 250, -1, -1));
+
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 900, 600));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnLogoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLogoutActionPerformed
-              // TODO add your handling code here:
+              new coconut.ui.LoginForm().setVisible(true);
+              this.dispose();
     }//GEN-LAST:event_btnLogoutActionPerformed
 
     private void btnSeasonsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSeasonsActionPerformed
-               // TODO add your handling code here:
+               new coconut.ui.admin.SeasonForm(currentUsername, currentUserId).setVisible(true);
+                this.dispose();
     }//GEN-LAST:event_btnSeasonsActionPerformed
 
     private void btnUsersActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUsersActionPerformed
-               // TODO add your handling code here:
+                new coconut.ui.admin.UserForm(currentUsername, currentUserId).setVisible(true);
+                 this.dispose();
     }//GEN-LAST:event_btnUsersActionPerformed
 
     private void btnReportsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReportsActionPerformed
-                // TODO add your handling code here:
+                new coconut.ui.admin.ReportForm(currentUsername, currentUserId).setVisible(true);
+                this.dispose();
     }//GEN-LAST:event_btnReportsActionPerformed
 
     /**
@@ -257,6 +313,7 @@ private void loadDashboard() {
     private javax.swing.JButton btnUsers;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;

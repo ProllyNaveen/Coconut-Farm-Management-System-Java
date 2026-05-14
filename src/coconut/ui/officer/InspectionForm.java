@@ -31,6 +31,11 @@ public class InspectionForm extends javax.swing.JFrame {
         loadPlots();
         loadActiveSeason();
         loadInspections();
+        setSize(900, 600);
+setLocationRelativeTo(null);
+setResizable(false); // this prevents resizing - optional
+// Set main background color
+jPanel1.setBackground(new java.awt.Color(245, 245, 245));
     }
 
     private void loadPlots() {
@@ -140,8 +145,15 @@ public class InspectionForm extends javax.swing.JFrame {
         jLabel7 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setMaximumSize(new java.awt.Dimension(900, 600));
+        setMinimumSize(new java.awt.Dimension(900, 600));
+        setPreferredSize(new java.awt.Dimension(900, 600));
+        setResizable(false);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
+        jPanel1.setMaximumSize(new java.awt.Dimension(900, 600));
+        jPanel1.setMinimumSize(new java.awt.Dimension(900, 600));
+        jPanel1.setPreferredSize(new java.awt.Dimension(900, 600));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel1.setText("Inspection Form");
@@ -215,7 +227,7 @@ public class InspectionForm extends javax.swing.JFrame {
         jLabel7.setText("Past Insepections");
         jPanel1.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(660, 20, -1, -1));
 
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 850, 610));
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 900, 600));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
